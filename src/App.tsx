@@ -1,11 +1,12 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { categories, journey, projects, researchAreas, type Project } from './data';
+import { additionalExperience, categories, certifications, education, experience, journey, projects, researchAreas, topSkills, type Project } from './data';
 
 gsap.registerPlugin(ScrollTrigger);
 
-const EMAIL = 'lakshy.phogat@gmail.com';
+const EMAIL = 'lakshy.kunsan@gmail.com';
+const LINKEDIN = 'https://www.linkedin.com/in/lakshy-chaudhary/?isSelfProfile=true';
 const navItems = [
   ['Work', '#projects'],
   ['About', '#about'],
@@ -22,14 +23,14 @@ function Arrow({ diagonal = false }: { diagonal?: boolean }) {
 }
 
 function Logo() {
-  return <a className="brand" href="#top" aria-label="Lakshy Chaudhary, home"><span className="brand-mark">L<span>.</span></span><span className="brand-name">LAKSHY<br /><small>AI · ROBOTICS · RESEARCH</small></span></a>;
+  return <a className="brand" href="#top" aria-label="Lakshy Chaudhary, home"><span className="brand-mark">L<span>.</span></span><span className="brand-name">Lakshy<br /><small>Research in AI & perception</small></span></a>;
 }
 
 function ProjectCard({ project, showcase = false }: { project: Project; showcase?: boolean }) {
   return (
     <article className={`project-card${showcase ? ' showcase-card' : ''}`}>
       <div className="project-copy">
-        <div className="project-meta"><span>{project.number} / {project.category}</span><span className="status"><i /> Ongoing</span></div>
+        <div className="project-meta"><span>{project.number} <b>—</b> {project.category}</span></div>
         <h3><a href={`#/projects/${project.slug}`} aria-label={`Read about ${project.title}`}>{project.title}<Arrow diagonal /></a></h3>
         <p>{project.summary}</p>
         <a className="text-link" href={`#/projects/${project.slug}`}>Explore project <Arrow /></a>
@@ -59,24 +60,21 @@ function Hero() {
     <section className="hero section-pad" id="top" aria-labelledby="hero-title">
       <div className="hero-inner">
         <div className="hero-copy">
-          <p className="eyebrow"><span className="eyebrow-line" /> AI CONVERGENCE · GUNSAN, SOUTH KOREA</p>
+          <p className="eyebrow"><span className="eyebrow-line" /> AI Convergence Lab · Gunsan, South Korea</p>
           <h1 id="hero-title">I build AI systems<br />that <em>see, reason,</em><br />and act<span className="period">.</span></h1>
-          <p className="hero-intro">I’m Lakshy Chaudhary — a PhD student exploring the space where artificial intelligence meets the physical world.</p>
+          <p className="hero-intro">I’m Lakshy Chaudhary — an AI PhD scholar researching brain imaging and Neuro AI, with broader interests in systems that perceive and act.</p>
           <div className="hero-actions"><a className="button button-primary" href="#projects">Explore my work <Arrow /></a><a className="button button-quiet" href="#contact">Get in touch <Arrow diagonal /></a></div>
-          <div className="hero-footnote"><span className="mini-marker">01</span><span>Researching perception, reasoning<br />& action in intelligent systems.</span></div>
+          <div className="hero-footnote"><span className="mini-marker">↳</span><span>Researching perception, reasoning<br />and action in intelligent systems.</span></div>
         </div>
-          <aside className="hero-focus" aria-label="Research areas">
-            <p className="eyebrow"><span className="eyebrow-line" /> RESEARCH FOCUS</p>
-            <ol>
-              <li><span>01</span> Perception <small>Computer vision · segmentation</small></li>
-              <li><span>02</span> Reasoning <small>Vision-language models</small></li>
-              <li><span>03</span> Action <small>Robot manipulation</small></li>
-            </ol>
-            <p className="hero-focus-note">Questions at the intersection of intelligent systems and the physical world.</p>
+          <aside className="hero-focus" aria-label="Current doctoral research">
+            <p className="eyebrow"><span className="eyebrow-line" /> Currently</p>
+            <h2 className="hero-focus-title">Brain imaging<br /><em>& Neuro AI</em></h2>
+            <p className="hero-focus-note">My doctoral work brings deep learning and cognitive signal processing to EEG/fMRI research in the AI Convergence Lab at Kunsan National University.</p>
+            <div className="hero-focus-meta"><span>PhD research</span><span>Gunsan, South Korea</span></div>
           </aside>
       </div>
-      <a className="scroll-cue" href="#approach"><span>SCROLL TO EXPLORE</span><i /></a>
-      <span className="hero-index">INDEPENDENT RESEARCH PORTFOLIO <b>—</b> AI & ROBOTICS</span>
+      <a className="scroll-cue" href="#approach"><span>Scroll to explore</span><i /></a>
+      <span className="hero-index">Research portfolio <b>—</b> AI & Neuro AI</span>
     </section>
   );
 }
@@ -105,10 +103,10 @@ function ProcessSection() {
   }, []);
   return (
     <section className="process-section section-pad" id="approach" ref={sequence}>
-      <div className="section-heading"><p className="eyebrow"><span className="eyebrow-line" /> HOW I THINK ABOUT IT</p><h2>From seeing<br /><em>to doing.</em></h2><p className="section-lede">Intelligent systems move through a loop: observe the world, reason about it, then act.</p></div>
+      <div className="section-heading"><p className="eyebrow"><span className="eyebrow-line" /> How I think about it</p><h2>From seeing<br /><em>to doing.</em></h2><p className="section-lede">Intelligent systems move through a loop: observe the world, reason about it, then act.</p></div>
       <div className="process-layout">
         <div className="process-readout-panel" aria-live="polite">
-          <span className="process-panel-label">CONCEPTUAL RESEARCH LENS / {processSteps[active]?.number}</span>
+          <span className="process-panel-label">A conceptual lens · {processSteps[active]?.number}</span>
           <p className="process-panel-theme">{processSteps[active]?.theme}</p>
           <h3>{processSteps[active]?.title}</h3>
           <p>{processSteps[active]?.detail}</p>
@@ -155,13 +153,13 @@ function Showcase() {
   }, []);
   return (
     <section className="showcase-section section-pad" id="projects" ref={section}>
-      <div className="section-heading heading-row"><div><p className="eyebrow"><span className="eyebrow-line" /> SELECTED WORK / 01—03</p><h2>Questions worth<br /><em>getting hands-on with.</em></h2></div><p className="section-lede">Ongoing explorations across embodied AI, perception, and patterns in complex data.</p></div>
+      <div className="section-heading heading-row"><div><p className="eyebrow"><span className="eyebrow-line" /> Selected work</p><h2>Questions worth<br /><em>getting hands-on with.</em></h2></div><p className="section-lede">Ongoing explorations across embodied AI, perception, and patterns in complex data.</p></div>
       <div className="showcase-viewport" aria-label="Selected research projects">
         <div className="showcase-window" ref={track}>
           {projects.map((project) => <ProjectCard key={project.slug} project={project} showcase />)}
         </div>
       </div>
-      <div className="showcase-hint"><span>SCROLL TO MOVE THROUGH THE WORK</span><span className="showcase-hint-line" /></div>
+      <div className="showcase-hint"><span>Scroll to move through the work</span><span className="showcase-hint-line" /></div>
     </section>
   );
 }
@@ -175,7 +173,7 @@ function ProjectExplorer() {
   }), [query, category]);
   return (
     <section className="explorer-section section-pad" aria-labelledby="explorer-title">
-      <div className="explorer-top"><div><p className="eyebrow"><span className="eyebrow-line" /> RESEARCH INDEX</p><h2 id="explorer-title">Explore the work<span className="period">.</span></h2></div><p>Search across the themes and methods behind each project.</p></div>
+      <div className="explorer-top"><div><p className="eyebrow"><span className="eyebrow-line" /> Research index</p><h2 id="explorer-title">Explore the work<span className="period">.</span></h2></div><p>Search across the themes and methods behind each project.</p></div>
       <div className="project-controls"><label className="search-box"><svg aria-hidden="true" viewBox="0 0 20 20"><circle cx="8.5" cy="8.5" r="5.5"/><path d="m13 13 4 4"/></svg><span className="sr-only">Search projects</span><input type="search" placeholder="Search projects or methods" value={query} onChange={(event) => setQuery(event.target.value)} /></label><div className="filter-list" aria-label="Filter projects by category">{categories.map((item) => <button type="button" key={item} className={category === item ? 'filter-chip active' : 'filter-chip'} aria-pressed={category === item} onClick={() => setCategory(item)}>{item}</button>)}</div></div>
       {filtered.length ? <div className="project-grid">{filtered.map((project) => <ProjectCard key={project.slug} project={project} />)}</div> : <div className="empty-state"><span>NO MATCHING PROJECTS</span><p>Try another keyword or select a different research area.</p><button type="button" className="text-link" onClick={() => { setQuery(''); setCategory('All'); }}>Clear filters <Arrow /></button></div>}
       <p className="ongoing-note"><span className="pulse-dot" /> All listed projects are ongoing research explorations.</p>
@@ -187,8 +185,42 @@ function AboutSection() {
   return (
     <section className="about-section section-pad" id="about">
       <p className="about-location"><span>BASED IN</span><strong>Gunsan</strong><span>South Korea</span></p>
-      <div className="about-main"><p className="eyebrow"><span className="eyebrow-line" /> A LITTLE ABOUT ME</p><h2>Research that<br />doesn’t stop at<br /><em>the screen.</em></h2></div>
-      <div className="about-body"><p className="about-lead">I’m Lakshy Chaudhary (Lucky), a PhD student in AI Convergence at Kunsan National University in South Korea.</p><p>Originally from India and now based in Gunsan, I’m a Global Korea Scholarship scholar. My research interests span AI, robot manipulation, computer vision, vision-language models, and applied machine learning.</p><p>I’m drawn to systems that connect perception to action — and to the careful work of making those connections useful in the real world.</p><a className="text-link" href="#contact">Start a conversation <Arrow /></a></div>
+      <div className="about-main"><p className="eyebrow"><span className="eyebrow-line" /> A little about me</p><h2>Research that<br />doesn’t stop at<br /><em>the screen.</em></h2></div>
+      <div className="about-body"><p className="about-lead">I’m Lakshy Chaudhary (Lucky), an AI PhD scholar and Global Korea Scholarship recipient at Kunsan National University.</p><p>Originally from Meerut, India, I’m now based in Gunsan, South Korea. My current doctoral focus is Brain Imaging Data (Neuro AI), exploring AI and machine learning methods for EEG/fMRI and cognitive signal processing.</p><p>My broader interests include robot manipulation, computer vision, vision-language models, and applied machine learning.</p><a className="text-link" href="#experience">Experience & education <Arrow /></a><a className="text-link" href="#contact">Start a conversation <Arrow /></a></div>
+    </section>
+  );
+}
+
+function ExperienceSection() {
+  return (
+    <section className="career-section section-pad" id="experience">
+      <div className="career-heading"><p className="eyebrow"><span className="eyebrow-line" /> Experience & education</p><h2>A path through<br /><em>people and ideas.</em></h2></div>
+      <div className="career-columns">
+        <div className="career-list">
+          <h3 className="career-label">Experience</h3>
+          {experience.map((item) => <article className="career-entry" key={`${item.organization}-${item.role}`}>
+            <div className="career-entry-date">{item.date}</div>
+            <div className="career-entry-copy"><h4>{item.role}</h4><p className="career-organization">{item.organization}{item.location ? ` · ${item.location}` : ''}</p>{item.detail && <p className="career-detail">{item.detail}</p>}</div>
+          </article>)}
+          {additionalExperience.map((item) => <article className="career-entry" key={`${item.organization}-${item.role}`}>
+            <div className="career-entry-date">{item.date}</div>
+            <div className="career-entry-copy"><h4>{item.role}</h4><p className="career-organization">{item.organization}</p></div>
+          </article>)}
+        </div>
+        <div className="career-side">
+          <div className="education-list">
+            <h3 className="career-label">Education</h3>
+            {education.map((item) => <article className="education-entry" key={item.institution}>
+              <span>{item.date}</span><h4>{item.qualification}</h4><p>{item.institution} · {item.location}</p>
+            </article>)}
+          </div>
+          <div className="certification-list">
+            <h3 className="career-label">Certificates</h3>
+            {certifications.map((item) => <p className="certification-entry" key={item}>{item}</p>)}
+          </div>
+          <p className="top-skills-note"><span>Top skills</span>{topSkills.join(' · ')}</p>
+        </div>
+      </div>
     </section>
   );
 }
@@ -196,23 +228,123 @@ function AboutSection() {
 function ResearchSection() {
   return (
     <section className="research-section section-pad" id="research">
-      <div className="research-heading"><p className="eyebrow"><span className="eyebrow-line" /> RESEARCH / PUBLICATIONS</p><h2>Curiosity, with<br /><em>room to move.</em></h2><p className="section-lede">I work across methods and questions, following the problem wherever it leads.</p></div>
-      <div className="research-content"><div className="areas-list"><p className="list-label">AREAS OF INTEREST</p>{researchAreas.map((area, index) => <div className="area-row" key={area}><span>0{index + 1}</span><p>{area}</p><Arrow diagonal /></div>)}</div><div className="publication-card"><div className="pub-card-top"><span>PUBLICATIONS</span><span>—</span></div><h3>Still taking shape.</h3><p>There are no publications to list here yet. I’ll add them when there’s something confirmed to share.</p><span className="pub-card-foot">NO PUBLICATIONS LISTED</span></div></div>
+      <div className="research-heading"><p className="eyebrow"><span className="eyebrow-line" /> Research & publications</p><h2>Curiosity, with<br /><em>room to move.</em></h2><p className="section-lede">I work across methods and questions, following the problem wherever it leads.</p></div>
+      <div className="research-content"><div className="areas-list"><p className="list-label">Areas I return to</p>{researchAreas.map((area) => <div className="area-row" key={area}><p>{area}</p></div>)}</div><div className="publication-card"><div className="pub-card-top"><span>Publications</span></div><h3>Still taking shape.</h3><p>There are no publications to list here yet. I’ll add them when there’s something confirmed to share.</p></div></div>
     </section>
   );
 }
 
-const skills = ['Robot manipulation', 'Computer vision', 'Vision-language models', 'Segmentation', 'Camera observations', 'Facial action units', 'Event data', 'Temporal modeling', 'Applied machine learning'];
+const skills = ['Brain imaging data', 'Neuro AI', 'EEG / fMRI', 'Deep learning', 'Cognitive signal processing', 'Robot manipulation', 'Computer vision', 'Vision-language models', 'Segmentation', 'Camera observations', 'Facial action units', 'Event data', 'Temporal modeling', 'Applied machine learning', ...topSkills];
 function SkillsSection() {
-  return <section className="skills-section section-pad" aria-labelledby="skills-title"><div className="skills-intro"><p className="eyebrow"><span className="eyebrow-line" /> METHODS & TOOLKIT</p><h2 id="skills-title">A growing<br /><em>set of tools.</em></h2><p>Methods and technical areas reflected in my current research.</p></div><div className="skill-cloud">{skills.map((skill, index) => <span className="skill-tag" key={skill}><i>0{index + 1}</i>{skill}</span>)}</div></section>;
+  return <section className="skills-section section-pad" aria-labelledby="skills-title"><div className="skills-intro"><p className="eyebrow"><span className="eyebrow-line" /> Methods & toolkit</p><h2 id="skills-title">A growing<br /><em>set of tools.</em></h2><p>Methods and technical areas reflected in my current research.</p></div><div className="skill-cloud">{skills.map((skill) => <span className="skill-tag" key={skill}>{skill}</span>)}</div></section>;
+}
+
+function JourneyGallery() {
+  const track = useRef<HTMLDivElement>(null);
+  const [active, setActive] = useState(0);
+  const reducedMotion = useRef(false);
+
+  useLayoutEffect(() => {
+    const trackElement = track.current;
+    if (!trackElement) return;
+
+    const media = gsap.matchMedia();
+    media.add('(prefers-reduced-motion: no-preference)', () => {
+      const cards = trackElement.querySelectorAll<HTMLElement>('.journey-gallery-card');
+      gsap.fromTo(cards, { y: 24, opacity: 0 }, {
+        y: 0,
+        opacity: 1,
+        duration: 0.7,
+        stagger: 0.12,
+        ease: 'power2.out',
+        scrollTrigger: { trigger: trackElement, start: 'top 84%', once: true },
+      });
+    });
+    reducedMotion.current = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    return () => media.revert();
+  }, []);
+
+  const updateActive = () => {
+    const trackElement = track.current;
+    if (!trackElement) return;
+    const center = trackElement.getBoundingClientRect().left + trackElement.clientWidth / 2;
+    const cards = Array.from(trackElement.querySelectorAll<HTMLElement>('.journey-gallery-card'));
+    const nearest = cards.reduce((best, card, index) => {
+      const rect = card.getBoundingClientRect();
+      const distance = Math.abs(rect.left + rect.width / 2 - center);
+      return distance < best.distance ? { index, distance } : best;
+    }, { index: 0, distance: Number.POSITIVE_INFINITY });
+    setActive(nearest.index);
+  };
+
+  const goTo = (index: number) => {
+    const trackElement = track.current;
+    const card = trackElement?.querySelectorAll<HTMLElement>('.journey-gallery-card')[index];
+    if (!trackElement || !card) return;
+    trackElement.scrollTo({
+      left: card.offsetLeft - (trackElement.clientWidth - card.clientWidth) / 2,
+      behavior: reducedMotion.current ? 'auto' : 'smooth',
+    });
+    setActive(index);
+  };
+
+  const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    if (event.target instanceof HTMLButtonElement) return;
+    if (event.key === 'ArrowRight') {
+      event.preventDefault();
+      goTo(Math.min(journey.length - 1, active + 1));
+    } else if (event.key === 'ArrowLeft') {
+      event.preventDefault();
+      goTo(Math.max(0, active - 1));
+    }
+  };
+
+  return (
+    <div className="journey-gallery" aria-labelledby="journey-gallery-title">
+      <div className="journey-gallery-heading">
+        <div>
+          <p className="eyebrow"><span className="eyebrow-line" /> A personal archive</p>
+          <h3 id="journey-gallery-title">A journey,<br /><em>in chapters.</em></h3>
+        </div>
+        <div className="journey-gallery-controls">
+          <span className="journey-gallery-count" aria-hidden="true">0{active + 1}<i />0{journey.length}</span>
+          <button type="button" onClick={() => goTo(Math.max(0, active - 1))} disabled={active === 0} aria-label="Previous journey chapter"><span aria-hidden="true">←</span></button>
+          <button type="button" onClick={() => goTo(Math.min(journey.length - 1, active + 1))} disabled={active === journey.length - 1} aria-label="Next journey chapter"><span aria-hidden="true">→</span></button>
+        </div>
+      </div>
+      <div className="journey-gallery-track" id="journey-gallery-track" ref={track} role="region" aria-label="Journey chapters" aria-roledescription="carousel" tabIndex={0} onScroll={updateActive} onKeyDown={handleKeyDown}>
+        {journey.map((entry, index) => (
+          <article className={`journey-gallery-card${active === index ? ' is-current' : ''}`} key={entry.title} role="group" aria-roledescription="slide" aria-label={`${index + 1} of ${journey.length}: ${entry.title}`} tabIndex={0}>
+            <div className="journey-gallery-copy">
+              <span className="journey-gallery-date">{entry.date || 'Date to be added'}</span>
+              <h4>{entry.title}</h4>
+              <p>{entry.detail}</p>
+            </div>
+          </article>
+        ))}
+      </div>
+      <div className="journey-gallery-footer">
+        <p>This archive is intentionally typographic for now; personal photographs will be added only when available.</p>
+        <div className="journey-gallery-progress" aria-hidden="true"><span style={{ transform: `scaleX(${(active + 1) / journey.length})` }} /></div>
+      </div>
+    </div>
+  );
 }
 
 function JourneySection() {
-  return <section className="journey-section section-pad" id="journey"><div className="journey-intro"><p className="eyebrow"><span className="eyebrow-line" /> RESEARCH JOURNEY</p><h2>Still <em>becoming.</em></h2><p>A few coordinates in the journey so far. Dates are left open until there’s a confirmed timeline to share.</p></div><div className="timeline"><span className="timeline-fill" aria-hidden="true" />{journey.map((entry, index) => <article className="timeline-entry" key={entry.title}><div className="timeline-date">{entry.date}</div><span className="timeline-dot" aria-hidden="true" /><div className="timeline-copy"><span>CHAPTER / 0{index + 1}</span><h3>{entry.title}</h3><p>{entry.detail}</p></div></article>)}</div></section>;
+  return (
+    <section className="journey-section section-pad" id="journey">
+      <div className="journey-top">
+        <div className="journey-intro"><p className="eyebrow"><span className="eyebrow-line" /> Research journey</p><h2>Still <em>becoming.</em></h2><p>A few coordinates in the journey so far. Dates are left open until there’s a confirmed timeline to share.</p></div>
+        <div className="timeline"><span className="timeline-fill" aria-hidden="true" />{journey.map((entry) => <article className="timeline-entry" key={entry.title}><div className="timeline-date">{entry.date}</div><span className="timeline-dot" aria-hidden="true" /><div className="timeline-copy"><h3>{entry.title}</h3><p>{entry.detail}</p></div></article>)}</div>
+      </div>
+      <JourneyGallery />
+    </section>
+  );
 }
 
 function NotesSection() {
-  return <section className="notes-section section-pad" id="notes"><div><p className="eyebrow"><span className="eyebrow-line" /> FIELD NOTES</p><h2>Ideas in progress<span className="period">.</span></h2></div><div className="notes-empty"><span className="notes-mark" aria-hidden="true">···</span><p>No research notes published yet.</p><span>When there’s something ready to share, it’ll appear here.</span></div></section>;
+  return <section className="notes-section section-pad" id="notes"><div><p className="eyebrow"><span className="eyebrow-line" /> Field notes</p><h2>Ideas in progress<span className="period">.</span></h2></div><div className="notes-empty"><span className="notes-mark" aria-hidden="true">···</span><p>No research notes published yet.</p><span>When there’s something ready to share, it’ll appear here.</span></div></section>;
 }
 
 function ContactSection() {
@@ -226,16 +358,16 @@ function ContactSection() {
       window.location.href = `mailto:${EMAIL}`;
     }
   };
-  return <section className="contact-section section-pad" id="contact"><p className="eyebrow"><span className="eyebrow-line" /> OPEN CHANNEL</p><h2>Have a good<br /><em>question?</em></h2><p className="contact-intro">I’m always happy to hear from people thinking about intelligent systems and the worlds they act in.</p><div className="contact-actions"><a className="button button-primary" href={`mailto:${EMAIL}`}>Write me an email <Arrow diagonal /></a><button type="button" className="copy-email" onClick={copyEmail}>{copied ? 'Email copied ✓' : EMAIL}<span>{copied ? 'READY TO PASTE' : 'COPY EMAIL'}</span></button></div><div className="contact-meta"><span>BASED IN GUNSAN, SOUTH KOREA</span><span>ORIGINALLY FROM INDIA</span></div></section>;
+  return <section className="contact-section section-pad" id="contact"><p className="eyebrow"><span className="eyebrow-line" /> Get in touch</p><h2>Have a good<br /><em>question?</em></h2><p className="contact-intro">I’m always happy to hear from people thinking about intelligent systems and the worlds they act in.</p><div className="contact-actions"><a className="button button-primary" href={`mailto:${EMAIL}`}>Write me an email <Arrow diagonal /></a><button type="button" className="copy-email" onClick={copyEmail}>{copied ? 'Email copied ✓' : EMAIL}<span>{copied ? 'Ready to paste' : 'Copy email'}</span></button><a className="contact-link" href={LINKEDIN} target="_blank" rel="noreferrer">Find me on LinkedIn <Arrow diagonal /></a></div><div className="contact-meta"><span>Based in Gunsan, South Korea</span><span>Originally from Meerut, India</span></div></section>;
 }
 
 function Footer({ projectPage = false }: { projectPage?: boolean }) {
-  return <footer className="site-footer"><Logo /><p>Thoughtfully curious.<br />Always in progress.</p><a href={projectPage ? '#main-content' : '#top'} className="back-top">BACK TO TOP <span>↑</span></a><span className="copyright">© {new Date().getFullYear()} LAKSHY CHAUDHARY</span></footer>;
+  return <footer className="site-footer"><Logo /><p>Thoughtfully curious.<br />Always in progress.</p><a href={projectPage ? '#main-content' : '#top'} className="back-top">Back to top <span>↑</span></a><span className="copyright">© {new Date().getFullYear()} Lakshy Chaudhary</span></footer>;
 }
 
 function ProjectDetail({ project, onBack }: { project: Project; onBack: () => void }) {
-  useEffect(() => { document.title = `${project.title} — Lakshy Chaudhary`; window.scrollTo(0, 0); return () => { document.title = 'Lakshy Chaudhary — AI & Robotics Research'; }; }, [project]);
-  return <main className="detail-page" id="main-content"><div className="detail-top"><a className="back-link" href="#projects" onClick={onBack}><span>←</span> All projects</a><span className="detail-number">PROJECT / {project.number}</span></div><div className="detail-hero"><div><p className="eyebrow"><span className="eyebrow-line" /> {project.category.toUpperCase()} · ONGOING</p><h1>{project.title}<span className="period">.</span></h1><p className="detail-deck">{project.summary}</p></div></div><div className="detail-body"><div className="detail-overview"><p className="eyebrow"><span className="eyebrow-line" /> PROJECT OVERVIEW</p><h2>Understanding<br /><em>the question.</em></h2></div><div className="detail-sections"><section><span>01 / THE PROBLEM</span><p>{project.problem}</p></section><section><span>02 / APPROACH</span><p>{project.approach}</p></section><section><span>03 / METHODS</span><div className="detail-methods">{project.methods.map((method) => <span key={method}>{method}</span>)}</div></section><section><span>04 / CURRENT STATUS</span><p>This project is ongoing. More detail will be added as the work develops and confirmed information is available.</p></section><section><span>05 / LIMITATIONS</span><p>{project.limitations}</p></section><section><span>06 / MEDIA</span><p>No project media has been supplied for this page.</p></section></div></div>{(project.codeUrl || project.paperUrl) && <div className="detail-links"><span>FURTHER READING</span>{project.codeUrl && <a href={project.codeUrl} target="_blank" rel="noreferrer">Code <Arrow diagonal /></a>}{project.paperUrl && <a href={project.paperUrl} target="_blank" rel="noreferrer">Paper <Arrow diagonal /></a>}</div>}<div className="detail-next"><span>CONTINUE EXPLORING</span><div>{projects.filter((item) => item.slug !== project.slug).map((item) => <a key={item.slug} href={`#/projects/${item.slug}`}>{item.title}<Arrow diagonal /></a>)}</div></div></main>;
+  useEffect(() => { document.title = `${project.title} — Lakshy Chaudhary`; window.scrollTo(0, 0); return () => { document.title = 'Lakshy Chaudhary — AI, Neuro AI & Robotics'; }; }, [project]);
+  return <main className="detail-page" id="main-content"><div className="detail-top"><a className="back-link" href="#projects" onClick={onBack}><span>←</span> All projects</a><span className="detail-number">Project {project.number}</span></div><div className="detail-hero"><div><p className="eyebrow"><span className="eyebrow-line" /> {project.category} · Ongoing</p><h1>{project.title}<span className="period">.</span></h1><p className="detail-deck">{project.summary}</p></div></div><div className="detail-body"><div className="detail-overview"><p className="eyebrow"><span className="eyebrow-line" /> Project overview</p><h2>Understanding<br /><em>the question.</em></h2></div><div className="detail-sections"><section><span>The problem</span><p>{project.problem}</p></section><section><span>Approach</span><p>{project.approach}</p></section><section><span>Methods</span><div className="detail-methods">{project.methods.map((method) => <span key={method}>{method}</span>)}</div></section><section><span>Current status</span><p>This project is ongoing. More detail will be added as the work develops and confirmed information is available.</p></section><section><span>Limitations</span><p>{project.limitations}</p></section><section><span>Media</span><p>No project media has been supplied for this page.</p></section></div></div>{(project.codeUrl || project.paperUrl) && <div className="detail-links"><span>Further reading</span>{project.codeUrl && <a href={project.codeUrl} target="_blank" rel="noreferrer">Code <Arrow diagonal /></a>}{project.paperUrl && <a href={project.paperUrl} target="_blank" rel="noreferrer">Paper <Arrow diagonal /></a>}</div>}<div className="detail-next"><span>Continue exploring</span><div>{projects.filter((item) => item.slug !== project.slug).map((item) => <a key={item.slug} href={`#/projects/${item.slug}`}>{item.title}<Arrow diagonal /></a>)}</div></div></main>;
 }
 
 function App() {
@@ -294,7 +426,7 @@ function App() {
       <div className="reading-progress" aria-hidden="true"><span style={{ transform: `scaleX(${readingProgress / 100})` }} /></div>
       <a className="skip-link" href="#main-content">Skip to content</a>
       <SiteHeader theme={theme} onThemeToggle={() => setTheme((current) => current === 'dark' ? 'light' : 'dark')} />
-      {project ? <ProjectDetail project={project} onBack={() => setRoute('#projects')} /> : unknownRoute ? <main className="not-found" id="main-content"><p className="eyebrow">PROJECT NOT FOUND</p><h1>That page isn’t<br /><em>in the index.</em></h1><button className="button button-primary" onClick={goToProjects}>Back to projects <Arrow /></button></main> : <main id="main-content"><Hero /><ProcessSection /><Showcase /><ProjectExplorer /><AboutSection /><ResearchSection /><SkillsSection /><JourneySection /><NotesSection /><ContactSection /></main>}
+      {project ? <ProjectDetail project={project} onBack={() => setRoute('#projects')} /> : unknownRoute ? <main className="not-found" id="main-content"><p className="eyebrow">PROJECT NOT FOUND</p><h1>That page isn’t<br /><em>in the index.</em></h1><button className="button button-primary" onClick={goToProjects}>Back to projects <Arrow /></button></main> : <main id="main-content"><Hero /><ProcessSection /><Showcase /><ProjectExplorer /><AboutSection /><ExperienceSection /><ResearchSection /><SkillsSection /><JourneySection /><NotesSection /><ContactSection /></main>}
       <Footer projectPage={Boolean(project)} />
       {showTop && <button className="back-to-top" type="button" onClick={() => window.scrollTo({ top: 0, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' })} aria-label="Back to top">↑</button>}
     </div>

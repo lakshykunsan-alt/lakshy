@@ -59,10 +59,70 @@ export const researchAreas = [
   'Robot manipulation',
   'Computer vision',
   'Vision-language models',
+  'Neuro AI & brain imaging',
+  'Cognitive signal processing',
 ];
 
 export const journey = [
-  { date: '', title: 'Research in AI Convergence', detail: 'PhD student at Kunsan National University, South Korea.' },
-  { date: '', title: 'Global Korea Scholarship', detail: 'A GKS scholar, originally from India.' },
-  { date: '', title: 'Based in Gunsan', detail: 'Building a research life in South Korea.' },
+  { date: 'Sep 2025 — present', title: 'PhD Scholar', detail: 'Pursuing a PhD in Artificial Intelligence at Kunsan National University as a Global Korea Scholarship scholar.' },
+  { date: 'Sep 2024 — Sep 2025', title: 'Language Program Student', detail: 'Studied at Kunsan National University in Gunsan, South Korea.' },
+  { date: 'Jan — May 2024', title: 'Project Intern', detail: 'Amrita Vishwa Vidyapeetham, Coimbatore, India.' },
+  { date: 'Jun — Jul 2023', title: 'Summer Project Intern', detail: 'Birla Institute of Technology and Science, Pilani, India.' },
 ];
+
+export const experience = [
+  {
+    organization: 'Kunsan National University',
+    role: 'PhD Scholar',
+    date: 'September 2025 — Present',
+    location: 'Gunsan, South Korea',
+    detail: 'I am pursuing a PhD in Artificial Intelligence (Brain Imaging Data / Neuro AI) under Professor Han-Gue Jo in the AI Convergence Lab. My work focuses on brain imaging data, including EEG/fMRI, deep learning, and cognitive signal processing, within interdisciplinary neurotechnology and mental-health research.',
+  },
+  {
+    organization: 'Kunsan National University',
+    role: 'Language Program Student',
+    date: 'September 2024 — September 2025',
+    location: 'Gunsan, South Korea',
+    detail: '',
+  },
+  {
+    organization: 'Amrita Vishwa Vidyapeetham',
+    role: 'Project Intern',
+    date: 'January 2024 — May 2024',
+    location: 'Coimbatore, India',
+    detail: '',
+  },
+  {
+    organization: 'Birla Institute of Technology and Science, Pilani',
+    role: 'Summer Project Intern',
+    date: 'June 2023 — July 2023',
+    location: 'Pilani, India',
+    detail: '',
+  },
+];
+
+export const education = [
+  {
+    institution: 'Kunsan National University',
+    qualification: 'Doctor of Philosophy, Artificial Intelligence',
+    date: 'September 2025 — expected June 2028',
+    location: 'Gunsan, South Korea',
+  },
+  {
+    institution: 'Central University of Rajasthan',
+    qualification: 'Integrated M.Sc., Computer Science',
+    date: 'June 2019 — June 2024',
+    location: 'India',
+  },
+];
+
+export const certifications = [
+  'Supervised Machine Learning: Regression and Classification',
+  'AI Fluency for Students — Certificate of Completion',
+];
+
+export const additionalExperience = [
+  { organization: 'GDSC WOW', role: 'Internship', date: '' },
+];
+
+export const topSkills = ['Scholarly research', 'Educational research', 'Amazon DynamoDB'];

@@ -1,6 +1,6 @@
 # Lakshy Chaudhary — Research Portfolio
 
-A responsive research portfolio for Lakshy Chaudhary, built with React, TypeScript, Vite, Tailwind CSS, and GSAP. The site uses a restrained dark/light theme, a procedural SVG hero, scroll-linked research illustrations, searchable project index, and static project-detail routes using the URL hash so they remain refresh-safe on GitHub Pages.
+A responsive research portfolio for Lakshy Chaudhary, built with React, TypeScript, Vite, Tailwind CSS, and GSAP. The site uses a restrained dark/light theme, a typographic hero, scroll-linked research storytelling, an accessible journey gallery, a searchable project index, and static project-detail routes using the URL hash so they remain refresh-safe on GitHub Pages.
 
 ## Requirements
 
@@ -35,9 +35,9 @@ The workflow builds with Node.js 22 and publishes `dist/`. Vite's base path is `
 
 ## Content editing
 
-Project content, method tags, research areas, and editable journey entries are in `src/data.ts`. Unknown journey dates intentionally remain blank. Add code or paper destinations to a project only after a real URL has been confirmed; link controls are hidden when destinations are absent. Publication, research-note, CV, and social-link areas remain honest empty states until real material is supplied.
+Project content, experience, education, certifications, skills, research areas, and editable journey entries are in `src/data.ts`. Unknown journey dates intentionally remain blank. Add code or paper destinations to a project only after a real URL has been confirmed; link controls are hidden when destinations are absent. Publication, research-note, and CV areas remain honest empty states until real material is supplied.
 
-Procedural robot imagery is illustrative and is labeled as such; it is not project footage or evidence. All projects are presented as ongoing. No results, publication claims, project-specific limitations, metrics, or external accounts are inferred.
+Journey panels are typographic rather than fabricated photography; add real image URLs and alt text only when owner-supplied media is available. All projects are presented as ongoing. No results, publication claims, project-specific limitations, metrics, or external accounts are inferred.
 
 ## Accessibility and motion
 

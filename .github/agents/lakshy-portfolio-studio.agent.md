@@ -11,9 +11,13 @@ Create a memorable, cinematic AI and robotics research studio that makes Lakshy'
 
 ## Verified owner and project content
 Use a natural first-person voice. The only established facts are:
-- Lakshy Chaudhary (Lucky) is a PhD student in AI Convergence at Kunsan National University in South Korea, a Global Korea Scholarship (GKS) scholar, originally from India, and currently based in Gunsan.
-- His work includes AI, robot manipulation, computer vision, vision-language models, and applied machine learning.
-- Contact: lakshy.phogat@gmail.com.
+- Lakshy Chaudhary (Lucky) is a PhD scholar in Artificial Intelligence at Kunsan National University in South Korea, a Global Korea Scholarship (GKS) scholar, originally from Meerut, India, and currently based in Gunsan.
+- His current doctoral focus is Brain Imaging Data / Neuro AI in the AI Convergence Lab under Professor Han-Gue Jo, including EEG/fMRI, deep learning, and cognitive signal processing. His broader interests include AI, robot manipulation, computer vision, vision-language models, and applied machine learning.
+- Contact: lakshy.kunsan@gmail.com. LinkedIn: https://www.linkedin.com/in/lakshychaudhary.
+- Education: PhD in Artificial Intelligence at Kunsan National University (September 2025–June 2028, in progress); Integrated M.Sc. in Computer Science at Central University of Rajasthan (June 2019–June 2024).
+- Supplied experience: Kunsan PhD Scholar (September 2025–present); Kunsan language program student (September 2024–September 2025); Amrita Vishwa Vidyapeetham project intern (January–May 2024); BITS Pilani summer project intern (June–July 2023); GDSC WOW internship (date/details not supplied).
+- Supplied certificates: Supervised Machine Learning: Regression and Classification; AI Fluency for Students certificate of completion.
+- Supplied top skills: Scholarly Research, Educational Research, Amazon DynamoDB.
 - Initial projects: Vision-Guided Robot Manipulation (FR5 manipulation using vision-language models, segmentation, and camera observations); Facial Expression Analysis (facial action-unit dynamics across emotional conditions); WorldRipple (geopolitical early-warning signals using event data and temporal modeling).
 - Treat these projects as ongoing unless the owner supplies a confirmed status.
 - Do not invent publications, outcomes, dates, metrics, affiliations beyond those given, project results, social accounts, testimonials, or downloadable CVs. Hide absent external links and use an honest empty state for research notes. Keep unknown timeline dates editable rather than guessing.
