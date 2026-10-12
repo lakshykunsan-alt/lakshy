@@ -23,7 +23,7 @@ function Arrow({ diagonal = false }: { diagonal?: boolean }) {
 }
 
 function Logo() {
-  return <a className="brand" href="#top" aria-label="Lakshy Chaudhary, home"><span className="brand-mark">L<span>.</span></span><span className="brand-name">Lakshy<br /><small>Research in AI & perception</small></span></a>;
+  return <a className="brand" href="#top" aria-label="Lakshy Chaudhary, home"><span className="brand-mark">L<span>.</span></span><span className="brand-name">Lakshy<br /><small>AI · Neuro AI · Robotics</small></span></a>;
 }
 
 function ProjectCard({ project, showcase = false }: { project: Project; showcase?: boolean }) {
