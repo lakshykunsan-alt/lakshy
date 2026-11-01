@@ -6,6 +6,7 @@
     <meta name="theme-color" content="#f4efe6" />
     <script>
       try { document.documentElement.dataset.theme = localStorage.getItem('lakshy-theme') === 'dark' ? 'dark' : 'light'; } catch (e) {}
+      try { var lang = new URLSearchParams(location.search).get('lang') || localStorage.getItem('lakshy-lang'); if (/^(en|ko|hi)$/.test(lang)) document.documentElement.lang = lang; } catch (e) {}
     </script>
     <meta name="color-scheme" content="dark light" />
     <meta name="description" content="Lakshy Chaudhary is a GKS PhD scholar at Kunsan National University exploring Neuro AI, brain imaging, robotics, computer vision, and machine learning." />
@@ -20,6 +21,10 @@
     <meta name="twitter:title" content="Lakshy Chaudhary — AI, Neuro AI & Robotics" />
     <meta name="twitter:description" content="I build AI systems that see, reason, and act. My research spans Neuro AI, brain imaging, and robotics." />
     <link rel="canonical" href="https://lakshy.dev/" />
+    <link rel="alternate" hreflang="en" href="https://lakshy.dev/?lang=en" />
+    <link rel="alternate" hreflang="ko" href="https://lakshy.dev/?lang=ko" />
+    <link rel="alternate" hreflang="hi" href="https://lakshy.dev/?lang=hi" />
+    <link rel="alternate" hreflang="x-default" href="https://lakshy.dev/" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
