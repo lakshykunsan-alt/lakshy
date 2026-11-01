@@ -80,8 +80,10 @@ const en = {
   work: {
     eyebrow: 'Selected work', title: ['Questions worth ', 'getting hands-on with.'] as Heading,
     lede: 'Three ongoing projects across embodied AI, perception and patterns in messy real-world data.',
-    number: 'No.', methods: 'Methods', read: 'Read about the project', credit: 'Stock photo · Unsplash',
+    number: 'No.', methods: 'Methods', read: 'Read about the project', credit: 'Stock photo · Unsplash', view: 'View',
   },
+  locale: 'en-US',
+  time: { label: 'Local time in Gunsan', cta: 'Let’s talk', ctaEm: 'about it.' },
   explorer: {
     eyebrow: 'Index', title: 'Everything, in one list', period: '.', lede: 'Search by theme or method.',
     search: 'Search projects', placeholder: 'Try “segmentation” or “temporal”', filter: 'Filter projects by category', all: 'All',
@@ -178,8 +180,10 @@ const ko: Dictionary = {
   work: {
     eyebrow: '주요 작업', title: ['직접 ', '파고들 만한 질문들.'],
     lede: '체화된 AI, 지각, 그리고 복잡한 실제 데이터 속 패턴에 걸친 세 가지 진행 중인 프로젝트입니다.',
-    number: 'No.', methods: '방법', read: '프로젝트 자세히 보기', credit: '스톡 사진 · Unsplash',
+    number: 'No.', methods: '방법', read: '프로젝트 자세히 보기', credit: '스톡 사진 · Unsplash', view: '보기',
   },
+  locale: 'ko-KR',
+  time: { label: '군산 현지 시각', cta: '함께 ', ctaEm: '이야기해요.' },
   explorer: {
     eyebrow: '색인', title: '모든 프로젝트를 한 목록에', period: '.', lede: '주제나 방법으로 검색해 보세요.',
     search: '프로젝트 검색', placeholder: '“세그멘테이션” 또는 “시계열”을 검색해 보세요', filter: '카테고리별 프로젝트 필터', all: '전체',
@@ -318,8 +322,10 @@ const hi: Dictionary = {
   work: {
     eyebrow: 'चुनिंदा काम', title: ['ऐसे सवाल जिन पर ', 'हाथ आज़माना बनता है।'],
     lede: 'एम्बॉडिड AI, परसेप्शन और असल दुनिया के उलझे डेटा के पैटर्न पर तीन जारी प्रोजेक्ट।',
-    number: 'नं.', methods: 'विधियाँ', read: 'प्रोजेक्ट के बारे में पढ़ें', credit: 'स्टॉक फ़ोटो · Unsplash',
+    number: 'नं.', methods: 'विधियाँ', read: 'प्रोजेक्ट के बारे में पढ़ें', credit: 'स्टॉक फ़ोटो · Unsplash', view: 'देखें',
   },
+  locale: 'hi-IN',
+  time: { label: 'गुनसान का स्थानीय समय', cta: 'चलिए ', ctaEm: 'बात करते हैं।' },
   explorer: {
     eyebrow: 'सूची', title: 'सब कुछ, एक ही सूची में', period: '।', lede: 'थीम या विधि से खोजें।',
     search: 'प्रोजेक्ट खोजें', placeholder: '“सेगमेंटेशन” या “टेम्पोरल” खोजकर देखें', filter: 'श्रेणी के अनुसार प्रोजेक्ट छाँटें', all: 'सभी',

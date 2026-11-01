@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState, type SyntheticEvent } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent, type SyntheticEvent } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { categories, projects, type Project } from './data';
@@ -19,6 +19,8 @@ const navItems = [
 ] as const;
 
 const prefersReducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+/* Cursor-following touches only make sense with a mouse, and only when motion is welcome. */
+const canHover = () => window.matchMedia('(hover: hover) and (pointer: fine)').matches && !prefersReducedMotion();
 
 /* Projects keep their structure from data.ts; the words come from the active language. */
 function useProjects(): Project[] {
@@ -77,6 +79,24 @@ function Logo() {
 function PhotoCredit({ project }: { project: Project }) {
   const { t } = useI18n();
   return <a className="photo-credit" href={project.imageCreditUrl} target="_blank" rel="noreferrer">{t.work.credit}</a>;
+}
+
+function GunsanTime() {
+  const { t } = useI18n();
+  const [now, setNow] = useState(() => new Date());
+  useEffect(() => {
+    const id = window.setInterval(() => setNow(new Date()), 15000);
+    return () => window.clearInterval(id);
+  }, []);
+  const time = new Intl.DateTimeFormat(t.locale, { hour: 'numeric', minute: '2-digit', timeZone: 'Asia/Seoul' }).format(now);
+  return <p className="local-time"><span className="live-dot" aria-hidden="true" />{t.time.label} · <time>{time}</time></p>;
+}
+
+/* A slow ribbon of research areas; decorative, since the same list appears in the research section. */
+function AreasMarquee() {
+  const { t } = useI18n();
+  const items = [...t.researchAreas, ...t.researchAreas, ...t.researchAreas, ...t.researchAreas];
+  return <div className="marquee" aria-hidden="true"><div className="marquee-track">{items.map((area, index) => <span key={index}>{area}<i>✳</i></span>)}</div></div>;
 }
 
 function LanguageSwitch() {
@@ -188,8 +208,36 @@ function ProcessSection() {
 function FeaturedWork() {
   const { t } = useI18n();
   const items = useProjects();
+  const section = useRef<HTMLElement>(null);
+  const cursor = useRef<HTMLDivElement>(null);
+
+  // A round "View" label trails the mouse over project photos.
+  useEffect(() => {
+    const badge = cursor.current;
+    if (!badge || !section.current || !canHover()) return;
+    const x = gsap.quickTo(badge, 'x', { duration: .45, ease: 'power3' });
+    const y = gsap.quickTo(badge, 'y', { duration: .45, ease: 'power3' });
+    const move = (event: PointerEvent) => { x(event.clientX); y(event.clientY); };
+    const enter = (event: PointerEvent) => { gsap.set(badge, { x: event.clientX, y: event.clientY }); gsap.to(badge, { scale: 1, autoAlpha: 1, duration: .35, ease: 'back.out(1.7)' }); };
+    const leave = () => { gsap.to(badge, { scale: .3, autoAlpha: 0, duration: .25, ease: 'power2.in' }); };
+    const frames = Array.from(section.current.querySelectorAll<HTMLElement>('.feature-media > a'));
+    frames.forEach((frame) => {
+      frame.classList.add('has-view-cursor');
+      frame.addEventListener('pointerenter', enter);
+      frame.addEventListener('pointermove', move);
+      frame.addEventListener('pointerleave', leave);
+    });
+    return () => frames.forEach((frame) => {
+      frame.classList.remove('has-view-cursor');
+      frame.removeEventListener('pointerenter', enter);
+      frame.removeEventListener('pointermove', move);
+      frame.removeEventListener('pointerleave', leave);
+    });
+  }, []);
+
   return (
-    <section className="work-section section-pad" id="projects">
+    <section className="work-section section-pad" id="projects" ref={section}>
+      <div className="view-cursor" ref={cursor} aria-hidden="true"><span>{t.work.view}</span><Arrow diagonal /></div>
       <div className="section-heading split-heading"><div><p className="eyebrow">{t.work.eyebrow}</p><h2>{t.work.title[0]}<em>{t.work.title[1]}</em></h2></div><p className="section-lede">{t.work.lede}</p></div>
       <div className="feature-list">
         {items.map((project, index) => <article className={`feature${index % 2 ? ' is-flipped' : ''}`} key={project.slug}>
@@ -216,6 +264,15 @@ function ProjectExplorer() {
   const items = useProjects();
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState('All');
+  const [hovered, setHovered] = useState<Project | null>(null);
+  const [showPreview] = useState(canHover);
+  const preview = useRef<HTMLDivElement>(null);
+  const follow = useRef<{ x: gsap.QuickToFunc; y: gsap.QuickToFunc } | null>(null);
+  useEffect(() => {
+    if (!preview.current) return;
+    follow.current = { x: gsap.quickTo(preview.current, 'x', { duration: .6, ease: 'power3' }), y: gsap.quickTo(preview.current, 'y', { duration: .6, ease: 'power3' }) };
+  }, [showPreview]);
+  const trackPointer = (event: ReactPointerEvent) => { follow.current?.x(event.clientX); follow.current?.y(event.clientY); };
   const filtered = useMemo(() => items.filter((project, index) => {
     // Search the English wording too, so technical terms work in any language.
     const original = projects[index];
@@ -227,7 +284,8 @@ function ProjectExplorer() {
       <div className="explorer-top"><div><p className="eyebrow">{t.explorer.eyebrow}</p><h2 id="explorer-title">{t.explorer.title}<span className="period">{t.explorer.period}</span></h2></div><p className="section-lede">{t.explorer.lede}</p></div>
       <div className="project-controls"><label className="search-box"><svg aria-hidden="true" viewBox="0 0 20 20"><circle cx="8.5" cy="8.5" r="5.5" /><path d="m13 13 4 4" /></svg><span className="sr-only">{t.explorer.search}</span><input type="search" placeholder={t.explorer.placeholder} value={query} onChange={(event) => setQuery(event.target.value)} /></label><div className="filter-list" aria-label={t.explorer.filter}>{categories.map((item) => <button type="button" key={item} className={category === item ? 'filter-chip active' : 'filter-chip'} aria-pressed={category === item} onClick={() => setCategory(item)}>{item === 'All' ? t.explorer.all : t.categories[item] ?? item}</button>)}</div></div>
       <p className="sr-only" aria-live="polite" aria-atomic="true">{t.explorer.found(filtered.length)}</p>
-      {filtered.length ? <ul className="index-list">{filtered.map((project) => <li key={project.slug}><a href={`#/projects/${project.slug}`}><span className="index-number">{project.number}</span><span className="index-title">{project.title}</span><span className="index-category">{project.category}</span><span className="index-summary">{project.summary}</span><Arrow diagonal /></a></li>)}</ul> : <div className="empty-state"><p>{t.explorer.empty}</p><button type="button" className="text-link" onClick={() => { setQuery(''); setCategory('All'); }}>{t.explorer.clear} <Arrow /></button></div>}
+      {showPreview && <div className={`index-preview${hovered ? ' is-visible' : ''}`} ref={preview} aria-hidden="true">{items.map((project) => <img key={project.slug} src={project.image} alt="" loading="lazy" className={hovered?.slug === project.slug ? 'is-current' : undefined} />)}</div>}
+      {filtered.length ? <ul className="index-list" onPointerMove={showPreview ? trackPointer : undefined} onPointerLeave={() => setHovered(null)}>{filtered.map((project) => <li key={project.slug}><a href={`#/projects/${project.slug}`} onPointerEnter={showPreview ? (event) => { if (!hovered) { follow.current?.x(event.clientX, event.clientX); follow.current?.y(event.clientY, event.clientY); } setHovered(project); } : undefined}><span className="index-number">{project.number}</span><span className="index-title">{project.title}</span><span className="index-category">{project.category}</span><span className="index-summary">{project.summary}</span><Arrow diagonal /></a></li>)}</ul> : <div className="empty-state"><p>{t.explorer.empty}</p><button type="button" className="text-link" onClick={() => { setQuery(''); setCategory('All'); }}>{t.explorer.clear} <Arrow /></button></div>}
       <p className="ongoing-note">{t.explorer.ongoing}</p>
     </section>
   );
@@ -340,7 +398,7 @@ function ContactSection() {
           <button type="button" className="copy-email" onClick={copyEmail} aria-live="polite">{copied ? t.contact.copied : EMAIL}<span>{copied ? '' : t.contact.copyHint}</span></button>
           <a className="text-link" href={LINKEDIN} target="_blank" rel="noreferrer">LinkedIn <Arrow diagonal /></a>
         </div>
-        <p className="contact-signoff handwritten">{t.contact.signoff}</p>
+        <div className="contact-foot"><p className="contact-signoff handwritten">{t.contact.signoff}</p><GunsanTime /></div>
       </div>
       <p className="notes-empty">{t.contact.notes}</p>
     </section>
@@ -351,8 +409,10 @@ function Footer({ projectPage = false }: { projectPage?: boolean }) {
   const { t } = useI18n();
   return (
     <footer className="site-footer">
+      {projectPage && <a className="footer-cta" href={`mailto:${EMAIL}`}><span>{t.time.cta}<em>{t.time.ctaEm}</em></span><Arrow diagonal /></a>}
       <div className="footer-inner">
         <p>© {new Date().getFullYear()} Lakshy Chaudhary · {t.footer.place}</p>
+        {projectPage && <GunsanTime />}
         <nav className="footer-links" aria-label={t.footer.label}><a href={`mailto:${EMAIL}`}>{t.footer.email}</a><a href={LINKEDIN} target="_blank" rel="noreferrer">LinkedIn</a><a href={projectPage ? '#main-content' : '#top'}>{t.footer.top}</a></nav>
       </div>
     </footer>
@@ -512,7 +572,7 @@ function App() {
         <div className="reading-progress" aria-hidden="true"><span style={{ transform: `scaleX(${readingProgress})` }} /></div>
         <a className="skip-link" href="#main-content">{t.nav.skip}</a>
         <SiteHeader theme={theme} scrolled={scrolled} activeSection={activeSection} onThemeToggle={() => setTheme((current) => current === 'dark' ? 'light' : 'dark')} />
-        {project ? <ProjectDetail key={project.slug} project={project} onBack={() => setRoute('#projects')} /> : unknownRoute ? <main className="not-found" id="main-content" key={lang}><p className="eyebrow">{t.notFound.eyebrow}</p><h1>{t.notFound.title[0]}<em>{t.notFound.title[1]}</em></h1><button className="button button-primary" onClick={goToProjects}>{t.notFound.back} <Arrow /></button></main> : <main id="main-content" key={lang}><Hero /><ProcessSection /><FeaturedWork /><ProjectExplorer /><AboutSection /><ExperienceSection /><ResearchSection /><JourneySection /><ContactSection /></main>}
+        {project ? <ProjectDetail key={project.slug} project={project} onBack={() => setRoute('#projects')} /> : unknownRoute ? <main className="not-found" id="main-content" key={lang}><p className="eyebrow">{t.notFound.eyebrow}</p><h1>{t.notFound.title[0]}<em>{t.notFound.title[1]}</em></h1><button className="button button-primary" onClick={goToProjects}>{t.notFound.back} <Arrow /></button></main> : <main id="main-content" key={lang}><Hero /><AreasMarquee /><ProcessSection /><FeaturedWork /><ProjectExplorer /><AboutSection /><ExperienceSection /><ResearchSection /><JourneySection /><ContactSection /></main>}
         <Footer projectPage={Boolean(project)} />
         {showTop && <button className="back-to-top" type="button" onClick={() => window.scrollTo({ top: 0, behavior: prefersReducedMotion() ? 'auto' : 'smooth' })} aria-label={t.footer.topLabel}>↑</button>}
       </div>
