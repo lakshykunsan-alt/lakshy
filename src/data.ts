@@ -11,6 +11,10 @@ export type Project = {
   limitations: string;
   codeUrl?: string;
   paperUrl?: string;
+  /** Representative stock photo, credited — not research media. */
+  image: string;
+  imageAlt: string;
+  imageCreditUrl: string;
 };
 
 export const projects: Project[] = [
@@ -25,6 +29,9 @@ export const projects: Project[] = [
     approach: 'This ongoing project explores FR5 manipulation using vision-language models, segmentation, and camera observations.',
     methods: ['FR5 robot manipulation', 'Vision-language models', 'Segmentation', 'Camera observations'],
     limitations: 'Project-specific limitations have not been documented yet.',
+    image: 'images/robot-lab.jpg',
+    imageAlt: 'An automated gripper working behind glass in a blue-lit laboratory',
+    imageCreditUrl: 'https://unsplash.com/photos/9xHsWmh3m_4',
   },
   {
     slug: 'facial-expression-analysis',
@@ -37,6 +44,9 @@ export const projects: Project[] = [
     approach: 'An ongoing analysis of facial action-unit dynamics across emotional conditions.',
     methods: ['Facial action units', 'Temporal dynamics', 'Emotional conditions'],
     limitations: 'Project-specific limitations have not been documented yet.',
+    image: 'images/expression.jpg',
+    imageAlt: 'A woman with a surprised, delighted expression holding her face in her hands',
+    imageCreditUrl: 'https://unsplash.com/photos/kIWecTxaoNI',
   },
   {
     slug: 'worldripple',
@@ -49,6 +59,9 @@ export const projects: Project[] = [
     approach: 'This ongoing project explores early-warning signals using event data and temporal modeling.',
     methods: ['Event data', 'Temporal modeling', 'Early-warning signals'],
     limitations: 'Project-specific limitations have not been documented yet.',
+    image: 'images/newspapers.jpg',
+    imageAlt: 'Morning newspapers spread across a dark wooden table',
+    imageCreditUrl: 'https://unsplash.com/photos/hWJsOnaWTqs',
   },
 ];
 
