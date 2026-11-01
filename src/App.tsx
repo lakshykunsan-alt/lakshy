@@ -82,14 +82,9 @@ function PhotoCredit({ project }: { project: Project }) {
 function LanguageSwitch() {
   const { lang, setLang, t } = useI18n();
   return (
-    <label className="lang-switch" title={t.nav.language}>
-      <span className="sr-only">{t.nav.language}</span>
-      <svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><path d="M3 12h18M12 3c2.5 2.6 3.7 5.6 3.7 9s-1.2 6.4-3.7 9c-2.5-2.6-3.7-5.6-3.7-9S9.5 5.6 12 3Z" /></svg>
-      <span className="lang-current" aria-hidden="true">{languages.find((language) => language.code === lang)?.short}</span>
-      <select value={lang} onChange={(event) => setLang(event.target.value as Lang)}>
-        {languages.map((language) => <option key={language.code} value={language.code} lang={language.code}>{language.label}</option>)}
-      </select>
-    </label>
+    <div className="lang-switch" role="group" aria-label={t.nav.language}>
+      {languages.map((language) => <button type="button" key={language.code} lang={language.code} className={lang === language.code ? 'active' : undefined} aria-pressed={lang === language.code} aria-label={language.label} title={language.label} onClick={() => setLang(language.code)}>{language.short}</button>)}
+    </div>
   );
 }
 

@@ -5,8 +5,8 @@ export type Lang = 'en' | 'ko' | 'hi';
 
 export const languages: { code: Lang; label: string; short: string }[] = [
   { code: 'en', label: 'English', short: 'EN' },
-  { code: 'ko', label: '한국어', short: '한국어' },
-  { code: 'hi', label: 'हिन्दी', short: 'हिन्दी' },
+  { code: 'ko', label: '한국어', short: '한' },
+  { code: 'hi', label: 'हिन्दी', short: 'हि' },
 ];
 
 const STORAGE_KEY = 'lakshy-lang';
