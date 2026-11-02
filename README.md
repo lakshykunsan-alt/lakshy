@@ -1,6 +1,6 @@
 # Lakshy Chaudhary — Research Portfolio
 
-A responsive research portfolio for Lakshy Chaudhary, built with React, TypeScript, Vite, Tailwind CSS, and GSAP. The site uses a restrained dark/light theme, a typographic hero, scroll-linked research storytelling, an accessible journey gallery, a searchable project index, and static project-detail routes using the URL hash so they remain refresh-safe on GitHub Pages.
+The research portfolio at [lakshy.dev](https://lakshy.dev), built with React, TypeScript, Vite, Tailwind CSS and GSAP. It has a warm editorial look with real photography and a light/dark theme, and it is available in English, Korean and Hindi. Project pages use hash URLs (`#/projects/<slug>`), so they survive a refresh on GitHub Pages.
 
 ## Requirements
 
@@ -31,14 +31,16 @@ The production output is generated in `dist/`. Project details use URLs like `/#
 3. Configure `lakshy.dev` with the DNS records required by GitHub Pages and keep the `public/CNAME` file in place.
 4. Push to `main` or run the **Deploy to GitHub Pages** workflow manually.
 
-The workflow builds with Node.js 22 and publishes `dist/`. Vite's base path is `/`, appropriate for the custom domain. Metadata and canonical URL are configured for `https://lakshy.dev/`.
+The workflow builds with Node.js 22 and publishes `dist/`. Vite's base path is `./`, so assets resolve on the custom domain and on a repository subpath. Metadata and canonical URL are configured for `https://lakshy.dev/`.
 
 ## Content editing
 
-Project content, experience, education, certifications, skills, research areas, and editable journey entries are in `src/data.ts`. Unknown journey dates intentionally remain blank. Add code or paper destinations to a project only after a real URL has been confirmed; link controls are hidden when destinations are absent. Publication, research-note, and CV areas remain honest empty states until real material is supplied.
-
-Journey panels are typographic rather than fabricated photography; add real image URLs and alt text only when owner-supplied media is available. All projects are presented as ongoing. No results, publication claims, project-specific limitations, metrics, or external accounts are inferred.
+- **Structure and English text** live in `src/data.ts`: projects (with their photo, credit URL and related research areas), experience, education, certificates, research areas and the places in the journey.
+- **Translations** live in `src/i18n.ts`. English is read from `data.ts`, while the Korean (`ko`) and Hindi (`hi`) blocks are written by hand. A fact change must be made in `data.ts` and in both translation blocks.
+- **Languages** are picked from `?lang=en|ko|hi`, then the visitor's last choice (localStorage `lakshy-lang`), then the browser language. Korean and Hindi fonts load only when those languages are used.
+- **Photos**: the project images in `public/images/` are credited Unsplash stock photos, labelled as such on the site. They are not research media.
+- **Unknown information stays out.** Journey dates may be blank, limitations are hidden while empty, and code or paper links appear only once a real URL is added to a project. Publications and field notes show an honest empty state until there is something to share. Nothing about results, metrics or affiliations is inferred.
 
 ## Accessibility and motion
 
-The site keeps semantic content in the page, supports keyboard access and visible focus, includes a skip link and reduced-motion behavior, and uses native scrolling. Desktop project pinning and pointer parallax are disabled for reduced-motion preferences; the pinned showcase becomes a normal list on smaller screens. Theme preference is stored locally when browser storage is available.
+The site keeps semantic content in the page, supports keyboard use with visible focus and a skip link, moves focus to the heading when a project opens, and restores the reading position when you go back. All animation respects `prefers-reduced-motion`. Cursor effects only run with a mouse, and the scrolling list of research areas has a pause button. Scroll reveals animate opacity only, so content stays reachable by keyboard and screen readers before it is revealed.

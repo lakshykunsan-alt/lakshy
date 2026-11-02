@@ -8,7 +8,10 @@ export type Project = {
   problem: string;
   approach: string;
   methods: string[];
+  /** Leave empty until real limitations are documented; the section is hidden while empty. */
   limitations: string;
+  /** Indexes into researchAreas that this project relates to. */
+  areas: number[];
   codeUrl?: string;
   paperUrl?: string;
   /** Representative stock photo, credited — not research media. */
@@ -28,7 +31,8 @@ export const projects: Project[] = [
     problem: 'How can a robot act on a task when its understanding must be grounded in what its camera observes?',
     approach: 'This ongoing project explores FR5 manipulation using vision-language models, segmentation, and camera observations.',
     methods: ['FR5 robot manipulation', 'Vision-language models', 'Segmentation', 'Camera observations'],
-    limitations: 'Project-specific limitations have not been documented yet.',
+    limitations: '',
+    areas: [3, 5],
     image: 'images/robot-lab.jpg',
     imageAlt: 'An automated gripper working behind glass in a blue-lit laboratory',
     imageCreditUrl: 'https://unsplash.com/photos/9xHsWmh3m_4',
@@ -40,10 +44,11 @@ export const projects: Project[] = [
     shortTitle: 'Expression analysis',
     category: 'Computer vision',
     summary: 'Studying facial action-unit dynamics across different emotional conditions.',
-    problem: 'Facial expressions unfold over time; this project focuses on how action-unit dynamics vary across emotional conditions.',
+    problem: 'Facial expressions unfold over time — so how do action-unit dynamics vary across emotional conditions?',
     approach: 'An ongoing analysis of facial action-unit dynamics across emotional conditions.',
     methods: ['Facial action units', 'Temporal dynamics', 'Emotional conditions'],
-    limitations: 'Project-specific limitations have not been documented yet.',
+    limitations: '',
+    areas: [4],
     image: 'images/expression.jpg',
     imageAlt: 'A woman with a surprised, delighted expression holding her face in her hands',
     imageCreditUrl: 'https://unsplash.com/photos/kIWecTxaoNI',
@@ -55,10 +60,11 @@ export const projects: Project[] = [
     shortTitle: 'WorldRipple',
     category: 'Applied AI',
     summary: 'Exploring geopolitical early-warning signals through event data and temporal modeling.',
-    problem: 'Geopolitical developments can emerge through changing patterns in event data over time.',
+    problem: 'Can changing patterns in event data, modeled over time, serve as early-warning signals of geopolitical developments?',
     approach: 'This ongoing project explores early-warning signals using event data and temporal modeling.',
     methods: ['Event data', 'Temporal modeling', 'Early-warning signals'],
-    limitations: 'Project-specific limitations have not been documented yet.',
+    limitations: '',
+    areas: [2],
     image: 'images/newspapers.jpg',
     imageAlt: 'Morning newspapers spread across a dark wooden table',
     imageCreditUrl: 'https://unsplash.com/photos/hWJsOnaWTqs',
@@ -67,20 +73,23 @@ export const projects: Project[] = [
 
 export const categories = ['All', ...new Set(projects.map((project) => project.category))];
 
+/* The first two are the doctoral focus; the rest are broader interests. Projects refer to these by index. */
 export const researchAreas = [
+  'Neuro AI & brain imaging',
+  'Cognitive signal processing',
   'AI & applied machine learning',
   'Robot manipulation',
   'Computer vision',
   'Vision-language models',
-  'Neuro AI & brain imaging',
-  'Cognitive signal processing',
 ];
 
+/* A journey through places, oldest first. Unknown dates stay blank. */
 export const journey = [
-  { date: 'Sep 2025 — present', title: 'PhD Scholar', detail: 'Pursuing a PhD in Artificial Intelligence at Kunsan National University as a Global Korea Scholarship scholar.' },
-  { date: 'Sep 2024 — Sep 2025', title: 'Language Program Student', detail: 'Studied at Kunsan National University in Gunsan, South Korea.' },
-  { date: 'Jan — May 2024', title: 'Project Intern', detail: 'Amrita Vishwa Vidyapeetham, Coimbatore, India.' },
-  { date: 'Jun — Jul 2023', title: 'Summer Project Intern', detail: 'Birla Institute of Technology and Science, Pilani, India.' },
+  { date: '', title: 'Meerut, India', detail: 'Where I’m from.' },
+  { date: 'Jun 2019 — Jun 2024', title: 'Rajasthan, India', detail: 'Integrated M.Sc. in Computer Science at the Central University of Rajasthan.' },
+  { date: 'Jun — Jul 2023', title: 'Pilani, India', detail: 'A summer project internship at BITS Pilani.' },
+  { date: 'Jan — May 2024', title: 'Coimbatore, India', detail: 'A project internship at Amrita Vishwa Vidyapeetham.' },
+  { date: 'Sep 2024 — present', title: 'Gunsan, South Korea', detail: 'A year in Kunsan National University’s language program, then a PhD in Artificial Intelligence from September 2025 as a Global Korea Scholarship scholar.' },
 ];
 
 export const experience = [
@@ -109,7 +118,7 @@ export const experience = [
     organization: 'Birla Institute of Technology and Science, Pilani',
     role: 'Summer Project Intern',
     date: 'June 2023 — July 2023',
-    location: 'Pilani, India',
+    location: 'Rajasthan, India',
     detail: '',
   },
 ];
