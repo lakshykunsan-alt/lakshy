@@ -211,10 +211,12 @@ function Hero() {
           .from('.hero-stagger', { y: 20, opacity: 0, duration: .75, stagger: .1 }, '-=.7')
           .from('.hero-facts > div', { y: 14, opacity: 0, duration: .6, stagger: .07 }, '-=.5');
       }
-      // The red lettering sinks a little slower than the page; the portrait drifts within its frame.
+      // As the page scrolls, the two name lines slide apart a little and the portrait rises ahead of them.
       if (canHover()) {
         const scrub = () => ({ trigger: element, start: 'top top', end: 'bottom top', scrub: true });
-        gsap.to('.hero-back', { yPercent: 22, ease: 'none', scrollTrigger: scrub() });
+        gsap.to('.hero-back', { xPercent: -5, ease: 'none', scrollTrigger: scrub() });
+        gsap.to('.hero-front', { xPercent: 3, ease: 'none', scrollTrigger: scrub() });
+        gsap.to('.hero-portrait', { yPercent: -12, ease: 'none', scrollTrigger: scrub() });
         gsap.to('.hero-portrait img', { yPercent: 6, ease: 'none', scrollTrigger: scrub() });
       }
     }, element);
