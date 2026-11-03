@@ -3,9 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#f4efe6" />
+    <meta name="theme-color" content="#0b0a0a" />
     <script>
-      try { document.documentElement.dataset.theme = localStorage.getItem('lakshy-theme') === 'dark' ? 'dark' : 'light'; } catch (e) {}
+      document.documentElement.dataset.theme = 'dark';
+      try { if (localStorage.getItem('lakshy-scheme') === 'light') document.documentElement.dataset.theme = 'light'; } catch (e) {}
       try { var lang = new URLSearchParams(location.search).get('lang') || localStorage.getItem('lakshy-lang'); if (/^(en|ko|hi)$/.test(lang)) document.documentElement.lang = lang; } catch (e) {}
     </script>
     <meta name="color-scheme" content="dark light" />
@@ -29,7 +30,7 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500&family=Fraunces:ital,opsz,wght@0,9..144,300..500;1,9..144,300..500&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",

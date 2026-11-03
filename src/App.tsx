@@ -20,8 +20,11 @@ const navItems = [
   ['journey', '#journey'],
 ] as const;
 
+/* A new key: the old one was written on every visit, so it cannot tell a real choice from the old default. */
+const THEME_KEY = 'lakshy-scheme';
+
 const prefersReducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-/* Cursor-following touches only make sense with a mouse, and only when motion is welcome. */
+/* Cursor-following touches and scroll-linked drift only make sense with a mouse, and only when motion is welcome. */
 const canHover = () => window.matchMedia('(hover: hover) and (pointer: fine)').matches && !prefersReducedMotion();
 const isProjectRoute = (hash: string) => /^#\/projects\//.test(hash);
 const scrollBehavior = (): ScrollBehavior => (prefersReducedMotion() ? 'instant' : 'smooth');
@@ -84,6 +87,11 @@ function Arrow({ diagonal = false }: { diagonal?: boolean }) {
   ) : (
     <svg aria-hidden="true" viewBox="0 0 20 20" className="icon"><path d="M3.5 10h12m-5-5 5 5-5 5" /></svg>
   );
+}
+
+/* Letters in a mask, so a word can rise into place one character at a time. */
+function Letters({ text }: { text: string }) {
+  return <span className="mask">{Array.from(text).map((char, index) => <span className="char" key={index}>{char}</span>)}</span>;
 }
 
 function Logo() {
@@ -192,37 +200,52 @@ function Hero() {
   const hero = useRef<HTMLElement>(null);
   useLayoutEffect(() => {
     const element = hero.current;
-    if (!element || introPlayed || prefersReducedMotion()) return;
+    if (!element || prefersReducedMotion()) return;
     const context = gsap.context(() => {
-      const words = splitWords(element.querySelector<HTMLElement>('h1')!);
-      gsap.timeline({ defaults: { ease: 'power3.out' }, onComplete: () => { introPlayed = true; } })
-        .fromTo('.hero-hello', { clipPath: 'inset(-20% 100% -20% 0%)' }, { clipPath: 'inset(-20% 0% -20% 0%)', duration: 1.1, ease: 'power2.inOut' })
-        .from(words, { yPercent: 115, rotate: 3, duration: 1, stagger: .06, ease: 'power4.out' }, '-=.5')
-        .fromTo('.scribble path', { strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: .9, ease: 'power2.inOut' }, '-=.3')
-        .from('.hero-intro, .hero-actions', { y: 18, opacity: 0, duration: .7, stagger: .12 }, '-=.8')
-        // Explicit end values: the print has a CSS transform transition, which made .from() land on its start pose.
-        .fromTo('.hero-print', { y: -70, rotation: -12, opacity: 0 }, { y: 0, rotation: 2.5, opacity: 1, duration: 1.2, ease: 'back.out(1.3)', clearProps: 'transform' }, '-=1.4')
-        .from('.tape', { scaleX: 0, duration: .45, ease: 'power2.out' }, '-=.3')
-        .from('.hero-facts > div', { y: 16, opacity: 0, duration: .6, stagger: .08 }, '-=.6');
+      if (!introPlayed) {
+        gsap.timeline({ defaults: { ease: 'power3.out' }, onComplete: () => { introPlayed = true; } })
+          .from('.hero-back .char', { yPercent: 110, duration: 1.15, stagger: .06, ease: 'power4.out' })
+          .fromTo('.hero-portrait .photo-frame', { clipPath: 'inset(100% 0% 0% 0%)' }, { clipPath: 'inset(0% 0% 0% 0%)', duration: 1.3, ease: 'power4.inOut' }, '-=.85')
+          .from('.hero-portrait img', { scale: 1.3, duration: 1.7, ease: 'power3.out' }, '<')
+          .from('.hero-front .char', { yPercent: 110, duration: .9, stagger: .035, ease: 'power4.out' }, '-=1.2')
+          .from('.hero-stagger', { y: 20, opacity: 0, duration: .75, stagger: .1 }, '-=.7')
+          .from('.hero-facts > div', { y: 14, opacity: 0, duration: .6, stagger: .07 }, '-=.5');
+      }
+      // The red lettering sinks a little slower than the page; the portrait drifts within its frame.
+      if (canHover()) {
+        const scrub = () => ({ trigger: element, start: 'top top', end: 'bottom top', scrub: true });
+        gsap.to('.hero-back', { yPercent: 22, ease: 'none', scrollTrigger: scrub() });
+        gsap.to('.hero-portrait img', { yPercent: 6, ease: 'none', scrollTrigger: scrub() });
+      }
     }, element);
     return () => context.revert();
   }, []);
 
   const [before, emphasis, after] = t.hero.title;
+  const current = t.experience[0];
   return (
-    <section className="hero section-pad" id="top" aria-labelledby="hero-title" ref={hero}>
-      <div className="hero-inner">
-        <div className="hero-copy">
-          <p className="hero-hello">{t.hero.hello}</p>
-          <h1 id="hero-title">{before}<span className="scribble-wrap"><em>{emphasis}</em><svg className="scribble" viewBox="0 0 300 24" preserveAspectRatio="none" aria-hidden="true"><path pathLength={1} d="M4 15c40-8 85-10 130-6 38 3 75 6 112 1 18-2 34-5 50-4" /></svg></span>{after}</h1>
+    <section className="hero" id="top" aria-labelledby="hero-title" ref={hero}>
+      <div className="hero-top">
+        <p className="tech-label hero-stagger">{current.role} — {current.organization}</p>
+        <div className="hero-stagger"><GunsanTime /></div>
+      </div>
+      <div className="hero-stage">
+        <h1 id="hero-title" className="hero-name">
+          <span className="sr-only">Lakshy Chaudhary</span>
+          <span className="hero-back" aria-hidden="true"><Letters text="Lakshy" /></span>
+          <span className="hero-front" aria-hidden="true"><Letters text="Chaudhary" /></span>
+        </h1>
+        <figure className="hero-portrait">
+          <div className="photo-frame"><img src={PHOTO} alt={t.hero.photoAlt} width={400} height={400} fetchPriority="high" onError={markMissing} /></div>
+          <figcaption className="tech-label hero-stagger">{t.hero.caption}</figcaption>
+        </figure>
+      </div>
+      <div className="hero-bottom">
+        <p className="hero-statement hero-stagger"><span className="hero-hello">{t.hero.hello}</span> {before}<em>{emphasis}</em>{after}</p>
+        <div className="hero-side hero-stagger">
           <p className="hero-intro">{t.hero.intro}</p>
           <div className="hero-actions"><a className="button button-primary" href="#projects">{t.hero.cta} <Arrow /></a><a className="text-link" href="#contact">{t.hero.sayHello} <Arrow diagonal /></a></div>
         </div>
-        <figure className="hero-print">
-          <span className="tape" aria-hidden="true" />
-          <img src={PHOTO} alt={t.hero.photoAlt} width={400} height={400} fetchPriority="high" onError={markMissing} />
-          <figcaption className="handwritten">{t.hero.caption}</figcaption>
-        </figure>
       </div>
       <dl className="hero-facts">
         {t.hero.facts.map(([term, value], index) => <div key={term}><dt>{term}</dt><dd>{value}{index === 0 && <small>{t.hero.year(phdYear())}</small>}</dd></div>)}
@@ -238,7 +261,7 @@ function ProcessSection() {
       <div className="section-heading split-heading"><div><p className="eyebrow">{t.process.eyebrow}</p><h2>{t.process.title[0]}<em>{t.process.title[1]}</em></h2></div><p className="section-lede">{t.process.lede}</p></div>
       <ol className="process-steps">
         {t.process.steps.map((step, index) => <li className="process-step reveal" key={step.title}>
-          <span className="step-number">{index + 1}</span>
+          <span className="step-number">{String(index + 1).padStart(2, '0')}</span>
           <p className="step-theme">{step.theme}</p>
           <h3>{step.title}</h3>
           <p>{step.detail}</p>
@@ -282,18 +305,24 @@ function FeaturedWork() {
       <div className="view-cursor" ref={cursor} aria-hidden="true"><span>{t.work.view}</span><Arrow diagonal /></div>
       <div className="section-heading split-heading"><div><p className="eyebrow">{t.work.eyebrow}</p><h2>{t.work.title[0]}<em>{t.work.title[1]}</em></h2></div><p className="section-lede">{t.work.lede}</p></div>
       <div className="feature-list">
-        {items.map((project, index) => <article className={`feature${index % 2 ? ' is-flipped' : ''}`} key={project.slug}>
+        {/* Three compositions take turns, so the list reads as a sequence rather than a stack of cards. */}
+        {items.map((project, index) => <article className={`feature is-layout-${index % 3}`} key={project.slug}>
           <figure className="feature-media">
             <a href={`#/projects/${project.slug}`} tabIndex={-1} aria-hidden="true"><img src={project.image} alt="" loading="lazy" onError={markMissing} /></a>
             <figcaption><PhotoCredit project={project} /></figcaption>
           </figure>
           <div className="feature-copy reveal">
-            <p className="feature-meta"><span>{t.work.number} {project.number}</span>{project.category}<span className="status-badge">{t.work.ongoing}</span></p>
-            <h3><a href={`#/projects/${project.slug}`}>{project.title}</a></h3>
-            <p className="feature-summary">{project.summary}</p>
-            <p className="feature-question">“{project.problem}”</p>
-            <ul className="method-list" aria-label={t.work.methods}>{project.methods.map((method) => <li key={method}>{method}</li>)}</ul>
-            <a className="text-link" href={`#/projects/${project.slug}`}>{t.work.read} <Arrow /></a>
+            <div className="feature-head">
+              <span className="feature-number" aria-hidden="true">{project.number}</span>
+              <p className="feature-meta"><span className="sr-only">{t.work.number} {project.number}</span><span>{project.category}</span><span className="status-badge">{t.work.ongoing}</span></p>
+              <h3><a href={`#/projects/${project.slug}`}>{project.title}</a></h3>
+            </div>
+            <div className="feature-body">
+              <p className="feature-summary">{project.summary}</p>
+              <p className="feature-question">“{project.problem}”</p>
+              <ul className="method-list" aria-label={t.work.methods}>{project.methods.map((method) => <li key={method}>{method}</li>)}</ul>
+              <a className="text-link" href={`#/projects/${project.slug}`}>{t.work.read} <Arrow /></a>
+            </div>
           </div>
         </article>)}
       </div>
@@ -339,8 +368,8 @@ function AboutSection() {
     <section className="about-section section-pad" id="about">
       <div className="about-inner">
         <figure className="about-photo">
-          <img src={PHOTO} alt={t.about.photoAlt} width={400} height={400} loading="lazy" onError={markMissing} />
-          <figcaption className="handwritten">{t.about.caption}</figcaption>
+          <div className="photo-frame"><img src={PHOTO} alt={t.about.photoAlt} width={400} height={400} loading="lazy" onError={markMissing} /></div>
+          <figcaption className="tech-label">{t.about.caption}</figcaption>
         </figure>
         <div className="about-content">
           <p className="eyebrow">{t.about.eyebrow}</p>
@@ -366,7 +395,7 @@ function ExperienceSection() {
           <h3 className="career-label">{t.career.experience}</h3>
           {t.experience.map((item, index) => <article className="career-entry reveal" key={`${item.organization}-${item.role}`}>
             <div className="career-entry-date">{item.date}</div>
-            <div className="career-entry-copy"><h4>{item.role}{index === 0 && <span className="now-note handwritten">{t.career.now}</span>}</h4><p className="career-organization">{item.organization}{item.location ? `, ${item.location}` : ''}</p>{item.detail && <p className="career-detail">{item.detail}</p>}</div>
+            <div className="career-entry-copy"><h4>{item.role}{index === 0 && <span className="now-note">{t.career.now}</span>}</h4><p className="career-organization">{item.organization}{item.location ? `, ${item.location}` : ''}</p>{item.detail && <p className="career-detail">{item.detail}</p>}</div>
           </article>)}
           {/* Entries without dates or details stay compact rather than leaving a broken-looking row. */}
           {t.additionalExperience.map((item) => <p className="career-also" key={`${item.organization}-${item.role}`}><span>{t.career.also}</span>{item.role}, {item.organization}</p>)}
@@ -439,13 +468,13 @@ function ContactSection() {
       <div className="contact-card">
         <p className="eyebrow">{t.contact.eyebrow}</p>
         <h2>{t.contact.title[0]}<em>{t.contact.title[1]}</em></h2>
+        <a className="contact-email" href={`mailto:${EMAIL}`}><span className="tech-label">{t.contact.write}</span><span className="contact-address">{EMAIL}<Arrow diagonal /></span></a>
         <div className="contact-body">
           <div>
             <p className="contact-intro">{t.contact.intro}</p>
             <div className="contact-actions">
-              <a className="button button-primary" href={`mailto:${EMAIL}`}>{t.contact.write} <Arrow diagonal /></a>
               <button type="button" className="copy-email" onClick={copyEmail} aria-label={`${t.contact.copyLabel}: ${EMAIL}`}>
-                <span className="copy-address">{copied ? t.contact.copied : EMAIL}</span>
+                <span className="copy-address">{copied ? t.contact.copied : t.contact.copyLabel}</span>
                 <span className="copy-hint" aria-hidden="true">{copied ? '✓' : <><span className="hint-click">{t.contact.copyHint}</span><span className="hint-tap">{t.contact.tapHint}</span></>}</span>
               </button>
               <span className="sr-only" role="status">{copied ? t.contact.copied : ''}</span>
@@ -457,7 +486,7 @@ function ContactSection() {
             <ul>{t.contact.topics.map((topic) => <li key={topic.text}><a href={topic.project ? `#/projects/${topic.project}` : `mailto:${EMAIL}?subject=${encodeURIComponent(topic.text)}`}>{topic.text}<Arrow diagonal /></a></li>)}</ul>
           </div>
         </div>
-        <div className="contact-foot"><GunsanTime /><p className="contact-signoff handwritten">{t.contact.signoff}</p></div>
+        <div className="contact-foot"><GunsanTime /><p className="contact-signoff">{t.contact.signoff}</p></div>
       </div>
     </section>
   );
@@ -543,7 +572,7 @@ function ProjectDetail({ project, onBack }: { project: Project; onBack: (event: 
 
 function App() {
   const [theme, setTheme] = useState<Theme>(() => {
-    try { return localStorage.getItem('lakshy-theme') === 'dark' ? 'dark' : 'light'; } catch { return 'light'; }
+    try { return localStorage.getItem(THEME_KEY) === 'light' ? 'light' : 'dark'; } catch { return 'dark'; }
   });
   const [lang, setLang] = useState<Lang>(initialLang);
   const t = dictionaries[lang];
@@ -609,10 +638,15 @@ function App() {
   }, [route, projectSlug]);
 
   useEffect(() => {
-    try { localStorage.setItem('lakshy-theme', theme); } catch { /* Theme still works for this session. */ }
     document.documentElement.dataset.theme = theme;
-    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', theme === 'dark' ? '#1a1815' : '#f4efe6');
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', theme === 'dark' ? '#0b0a0a' : '#efebe4');
   }, [theme]);
+  // Only a real choice is remembered, so the dark default can still reach everyone else.
+  const toggleTheme = () => {
+    const next = theme === 'dark' ? 'light' : 'dark';
+    try { localStorage.setItem(THEME_KEY, next); } catch { /* Theme still works for this session. */ }
+    setTheme(next);
+  };
 
   useEffect(() => {
     rememberLang(lang);
@@ -671,22 +705,19 @@ function App() {
       gsap.utils.toArray<HTMLElement>('.reveal').forEach((element, index) => {
         gsap.from(element, { y: 26, opacity: 0, duration: .8, delay: (index % 3) * .07, ease: 'power3.out', scrollTrigger: once(element, 'top 92%') });
       });
-      // Project photos open like a curtain, then drift gently with the scroll.
-      gsap.utils.toArray<HTMLElement>('.feature-media > a').forEach((frame) => {
+      // Photos open like a curtain; with a mouse they also drift gently inside their frames as the page scrolls.
+      const drift = canHover();
+      gsap.utils.toArray<HTMLElement>('.feature-media > a, .about-photo .photo-frame').forEach((frame) => {
         const image = frame.querySelector('img');
         gsap.fromTo(frame, { clipPath: 'inset(100% 0% 0% 0%)' }, { clipPath: 'inset(0% 0% 0% 0%)', duration: 1.3, ease: 'power4.inOut', scrollTrigger: once(frame, 'top 82%') });
         if (!image) return;
         gsap.fromTo(image, { scale: 1.25 }, { scale: 1, duration: 1.6, ease: 'power3.out', scrollTrigger: once(frame, 'top 82%') });
-        gsap.fromTo(image, { yPercent: -6 }, { yPercent: 6, ease: 'none', scrollTrigger: { trigger: frame, start: 'top bottom', end: 'bottom top', scrub: true } });
+        if (drift) gsap.fromTo(image, { yPercent: -5 }, { yPercent: 5, ease: 'none', scrollTrigger: { trigger: frame, start: 'top bottom', end: 'bottom top', scrub: true } });
       });
-      const aboutPhoto = document.querySelector('.about-photo');
-      if (aboutPhoto) {
-        gsap.fromTo('.about-photo img', { y: 50, rotation: -8, opacity: 0 }, { y: 0, rotation: -1.5, opacity: 1, duration: 1.2, ease: 'back.out(1.2)', clearProps: 'transform', scrollTrigger: once(aboutPhoto) });
-        gsap.fromTo('.about-photo figcaption', { clipPath: 'inset(-20% 100% -20% 0%)' }, { clipPath: 'inset(-20% 0% -20% 0%)', duration: 1.2, delay: .6, ease: 'power2.inOut', scrollTrigger: once(aboutPhoto) });
-      }
-      // Step numbers pop in one after another.
-      const steps = document.querySelector('.process-steps');
-      if (steps) gsap.from('.step-number', { scale: .3, rotation: -25, opacity: 0, duration: .7, stagger: .14, ease: 'back.out(2)', scrollTrigger: once(steps) });
+      // The big project numbers slide a touch against the scroll.
+      if (drift) gsap.utils.toArray<HTMLElement>('.feature-number').forEach((number) => {
+        gsap.fromTo(number, { yPercent: 30 }, { yPercent: -30, ease: 'none', scrollTrigger: { trigger: number, start: 'top bottom', end: 'bottom top', scrub: true } });
+      });
       gsap.utils.toArray<HTMLElement>('.areas-list').forEach((list) => {
         gsap.from(list.children, { x: -30, opacity: 0, duration: .7, stagger: .08, ease: 'power3.out', scrollTrigger: once(list) });
       });
@@ -697,11 +728,8 @@ function App() {
         ScrollTrigger.create({ trigger: entry, start: 'top 70%', onEnter: () => entry.classList.add('is-reached'), onLeaveBack: () => entry.classList.remove('is-reached') });
         gsap.from(entry, { x: 24, opacity: 0, duration: .8, ease: 'power3.out', scrollTrigger: once(entry, 'top 88%') });
       });
-      const card = document.querySelector('.contact-card');
-      if (card) {
-        gsap.from(card, { y: 40, scale: .96, opacity: 0, duration: 1, ease: 'power3.out', scrollTrigger: once(card) });
-        gsap.fromTo('.contact-signoff', { clipPath: 'inset(-30% 100% -30% 0%)' }, { clipPath: 'inset(-30% 0% -30% 0%)', duration: 1.3, delay: .8, ease: 'power2.inOut', scrollTrigger: once(card) });
-      }
+      const email = document.querySelector('.contact-email');
+      if (email) gsap.from(email, { y: 40, opacity: 0, duration: 1, ease: 'power3.out', scrollTrigger: once(email, 'top 92%') });
     });
     // A keyboard user tabbing ahead of the scroll should never land on something still faded out.
     const reveal = (event: FocusEvent) => {
@@ -735,12 +763,12 @@ function App() {
       <div className="app-shell">
         <div className="reading-progress" aria-hidden="true"><span ref={progress} /></div>
         <a className="skip-link" href="#main-content" onClick={skipToContent}>{t.nav.skip}</a>
-        <SiteHeader theme={theme} scrolled={scrolled} activeSection={activeSection} route={route} onThemeToggle={() => setTheme((current) => current === 'dark' ? 'light' : 'dark')} />
+        <SiteHeader theme={theme} scrolled={scrolled} activeSection={activeSection} route={route} onThemeToggle={toggleTheme} />
         {project ? <ProjectDetail key={project.slug} project={project} onBack={backToProjects} />
           : unknownRoute ? <main className="not-found" id="main-content" tabIndex={-1} key={lang}><p className="eyebrow">{t.notFound.eyebrow}</p><h1>{t.notFound.title[0]}<em>{t.notFound.title[1]}</em></h1><a className="button button-primary" href="#projects">{t.notFound.back} <Arrow /></a></main>
           : <main id="main-content" tabIndex={-1} key={lang}><Hero /><AreasMarquee /><ProcessSection /><FeaturedWork /><ProjectExplorer query={query} setQuery={setQuery} category={category} setCategory={setCategory} /><AboutSection /><ExperienceSection /><ResearchSection /><JourneySection /><ContactSection /></main>}
         <Footer project={project} />
-        {showTop && <button className="back-to-top" type="button" onClick={() => { window.scrollTo({ top: 0, behavior: scrollBehavior() }); focusMain(); }} aria-label={t.footer.topLabel}>↑</button>}
+        {showTop && <button className="back-to-top" type="button" onClick={() => { window.scrollTo({ top: 0, behavior: scrollBehavior() }); focusMain(); }} aria-label={t.footer.topLabel}><svg aria-hidden="true" viewBox="0 0 20 20" className="icon"><path d="M10 16.5v-12m-5 5 5-5 5 5" /></svg></button>}
       </div>
     </I18nContext.Provider>
   );

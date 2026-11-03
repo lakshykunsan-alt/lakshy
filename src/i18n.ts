@@ -34,10 +34,10 @@ export function rememberLang(lang: Lang) {
   }
 }
 
-/* Hangul and Devanagari need their own faces; they are only fetched when that language is picked. */
+/* Hangul and Devanagari need their own faces (a heavy weight stands in for the condensed display face); they are only fetched when that language is picked. */
 const fontSheets: Partial<Record<Lang, string>> = {
-  ko: 'https://fonts.googleapis.com/css2?family=Gaegu:wght@400&family=Noto+Sans+KR:wght@400;600&family=Noto+Serif+KR:wght@400;500&display=swap',
-  hi: 'https://fonts.googleapis.com/css2?family=Kalam:wght@400&family=Noto+Sans+Devanagari:wght@400;600&family=Noto+Serif+Devanagari:wght@400;500&display=swap',
+  ko: 'https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;900&display=swap',
+  hi: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;800&display=swap',
 };
 
 export function loadFonts(lang: Lang) {
@@ -70,7 +70,7 @@ const en = {
     hello: 'Hi, I’m Lucky —',
     title: ['I build AI systems that ', 'see, reason,', ' and act.'] as readonly [string, string, string],
     intro: 'I’m Lakshy Chaudhary, a PhD scholar in Artificial Intelligence at Kunsan National University in South Korea. These days I spend most of my time with brain imaging data — EEG, fMRI and the signals in between — and the rest wondering how machines could perceive and act a little more like we do.',
-    cta: 'See what I’m working on', sayHello: 'or just say hello',
+    cta: 'View my work', sayHello: 'or just say hello',
     photoAlt: 'Lakshy Chaudhary standing by a seaside railing on a sunny day',
     caption: 'out by the sea, on a good day',
     facts: [['Currently', 'PhD, Artificial Intelligence'], ['Lab', 'AI Convergence Lab, Prof. Han-Gue Jo'], ['Focus', 'Brain imaging & Neuro AI'], ['Supported by', 'Global Korea Scholarship']] as [string, string][],
@@ -181,7 +181,7 @@ const ko: Dictionary = {
     hello: '안녕하세요, 럭키예요 —',
     title: ['저는 ', '보고, 추론하고,', ' 행동하는 AI 시스템을 만듭니다.'],
     intro: '저는 대한민국 국립군산대학교에서 인공지능을 전공하는 박사과정생 Lakshy Chaudhary입니다. 요즘은 대부분의 시간을 EEG, fMRI 같은 뇌 영상 데이터, 그리고 그 사이의 신호들과 함께 보내고, 나머지 시간에는 기계가 어떻게 하면 조금 더 우리처럼 지각하고 행동할 수 있을지 고민합니다.',
-    cta: '진행 중인 연구 보기', sayHello: '아니면 편하게 인사하기',
+    cta: '작업 보기', sayHello: '아니면 편하게 인사하기',
     photoAlt: '화창한 날 바닷가 난간 옆에 서 있는 Lakshy Chaudhary',
     caption: '날 좋은 날, 바닷가에서',
     facts: [['현재', '인공지능 박사과정'], ['연구실', 'AI Convergence Lab, Han-Gue Jo 교수님'], ['관심 분야', '뇌 영상 & 뉴로 AI'], ['지원', '한국정부초청장학금(GKS)']],
@@ -335,7 +335,7 @@ const hi: Dictionary = {
     hello: 'नमस्ते, मैं लकी हूँ —',
     title: ['मेरा काम ऐसे AI सिस्टम बनाना है जो ', 'देखें, सोचें', ' और फिर कदम उठाएँ।'],
     intro: 'मैं Lakshy Chaudhary हूँ, दक्षिण कोरिया की कुनसान नेशनल यूनिवर्सिटी में आर्टिफ़िशियल इंटेलिजेंस में PhD स्कॉलर। आजकल मेरा ज़्यादातर समय ब्रेन इमेजिंग डेटा — EEG, fMRI और उनके बीच के सिग्नल — के साथ गुज़रता है, और बाकी समय यह सोचने में बीतता है कि मशीनें कैसे थोड़ा और हमारी तरह देख-समझकर काम कर सकती हैं।',
-    cta: 'मेरा मौजूदा काम देखें', sayHello: 'या बस नमस्ते कहें',
+    cta: 'मेरा काम देखें', sayHello: 'या बस नमस्ते कहें',
     photoAlt: 'धूप भरे दिन समुद्र किनारे रेलिंग के पास खड़े Lakshy Chaudhary',
     caption: 'समुंदर किनारे, एक अच्छे दिन',
     facts: [['अभी', 'PhD, आर्टिफ़िशियल इंटेलिजेंस'], ['लैब', 'AI Convergence Lab, प्रो. Han-Gue Jo'], ['फ़ोकस', 'ब्रेन इमेजिंग और न्यूरो AI'], ['छात्रवृत्ति', 'ग्लोबल कोरिया स्कॉलरशिप (GKS)']],
