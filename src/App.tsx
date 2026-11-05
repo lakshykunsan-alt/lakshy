@@ -120,10 +120,31 @@ function GunsanTime() {
 function AreasMarquee() {
   const { t } = useI18n();
   const [paused, setPaused] = useState(false);
+  const track = useRef<HTMLDivElement>(null);
   const items = [...t.researchAreas, ...t.researchAreas, ...t.researchAreas, ...t.researchAreas];
+
+  // With a mouse, a quick scroll pushes the strip faster for a moment before it eases back to its slow pace.
+  useEffect(() => {
+    const element = track.current;
+    const animation = element?.getAnimations()[0];
+    if (!element || !animation || !canHover()) return;
+    const speed = { rate: 1 };
+    const apply = () => { animation.playbackRate = speed.rate; };
+    const trigger = ScrollTrigger.create({
+      trigger: element,
+      start: 'top bottom',
+      end: 'bottom top',
+      onUpdate: (self) => {
+        const boost = Math.min(Math.abs(self.getVelocity()) / 300, 5);
+        gsap.to(speed, { rate: 1 + boost, duration: .25, overwrite: true, onUpdate: apply, onComplete: () => { gsap.to(speed, { rate: 1, duration: 1.4, ease: 'power2.out', onUpdate: apply }); } });
+      },
+    });
+    return () => { trigger.kill(); gsap.killTweensOf(speed); animation.playbackRate = 1; };
+  }, []);
+
   return (
     <div className={`marquee-wrap${paused ? ' is-paused' : ''}`}>
-      <div className="marquee" aria-hidden="true"><div className="marquee-track">{items.map((area, index) => <span key={index} className={index >= t.researchAreas.length ? 'is-copy' : undefined}>{area}<i>✳</i></span>)}</div></div>
+      <div className="marquee" aria-hidden="true"><div className="marquee-track" ref={track}>{items.map((area, index) => <span key={index} className={index >= t.researchAreas.length ? 'is-copy' : undefined}>{area}<i>✳</i></span>)}</div></div>
       <button type="button" className="marquee-toggle" aria-pressed={paused} aria-label={paused ? t.marquee.play : t.marquee.pause} title={paused ? t.marquee.play : t.marquee.pause} onClick={() => setPaused((value) => !value)}>
         <svg aria-hidden="true" viewBox="0 0 20 20">{paused ? <path d="M7 5v10l8-5z" /> : <path d="M7 5v10M13 5v10" />}</svg>
       </button>
@@ -203,12 +224,18 @@ function Hero() {
     if (!element || prefersReducedMotion()) return;
     const context = gsap.context(() => {
       if (!introPlayed) {
+        // The rules draw across first, the red name rises, a crimson panel opens over the portrait and pulls away, then the surname and the details follow.
+        const header = document.querySelector('.site-header');
         gsap.timeline({ defaults: { ease: 'power3.out' }, onComplete: () => { introPlayed = true; } })
-          .from('.hero-back .char', { yPercent: 110, duration: 1.15, stagger: .06, ease: 'power4.out' })
-          .fromTo('.hero-portrait .photo-frame', { clipPath: 'inset(100% 0% 0% 0%)' }, { clipPath: 'inset(0% 0% 0% 0%)', duration: 1.3, ease: 'power4.inOut' }, '-=.85')
-          .from('.hero-portrait img', { scale: 1.3, duration: 1.7, ease: 'power3.out' }, '<')
-          .from('.hero-front .char', { yPercent: 110, duration: .9, stagger: .035, ease: 'power4.out' }, '-=1.2')
-          .from('.hero-stagger', { y: 20, opacity: 0, duration: .75, stagger: .1 }, '-=.7')
+          .fromTo('.hero-top', { '--rule': 0 }, { '--rule': 1, duration: 1.2, ease: 'power3.inOut' })
+          .from(header, { yPercent: -100, duration: .9 }, '<.1')
+          .from('.hero-back .char', { yPercent: 115, rotate: 6, transformOrigin: '0% 100%', duration: 1.15, stagger: .06, ease: 'power4.out' }, '<.15')
+          .fromTo('.hero-portrait .photo-frame', { clipPath: 'inset(100% 0% 0% 0%)', '--wipe': 1 }, { clipPath: 'inset(0% 0% 0% 0%)', duration: .9, ease: 'power4.inOut' }, '-=.9')
+          .to('.hero-portrait .photo-frame', { '--wipe': 0, duration: .9, ease: 'power4.inOut' }, '-=.15')
+          .from('.hero-portrait img', { scale: 1.35, duration: 1.6, ease: 'power3.out' }, '<')
+          .from('.hero-front .char', { yPercent: 115, rotate: 6, transformOrigin: '0% 100%', duration: .9, stagger: .035, ease: 'power4.out' }, '-=1.5')
+          .fromTo('.hero-bottom, .hero-facts', { '--rule': 0 }, { '--rule': 1, duration: 1.1, stagger: .12, ease: 'power3.inOut' }, '-=1')
+          .from('.hero-stagger', { y: 20, opacity: 0, duration: .75, stagger: .1 }, '-=.9')
           .from('.hero-facts > div', { y: 14, opacity: 0, duration: .6, stagger: .07 }, '-=.5');
       }
       // As the page scrolls, the two name lines slide apart a little and the portrait rises ahead of them.
@@ -587,6 +614,7 @@ function App() {
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState('All');
   const progress = useRef<HTMLSpanElement>(null);
+  const curtain = useRef<HTMLDivElement>(null);
   const homeScroll = useRef<{ hash: string; y: number } | null>(null);
   const returning = useRef(false);
   const previousRoute = useRef(route);
@@ -638,6 +666,41 @@ function App() {
     if (firstRender && id) document.fonts?.ready.then(() => requestAnimationFrame(settle));
     return () => cancelAnimationFrame(frame);
   }, [route, projectSlug]);
+
+  // Moving between the home page and a project, a crimson curtain covers the swap and lifts away.
+  // It starts covering before the first paint of the new view, so navigation itself is never delayed.
+  const shownView = useRef(projectSlug ?? '');
+  useLayoutEffect(() => {
+    const view = projectSlug ?? '';
+    if (view === shownView.current) return;
+    shownView.current = view;
+    if (!curtain.current || prefersReducedMotion()) return;
+    const tween = gsap.fromTo(curtain.current, { yPercent: 0, visibility: 'visible' }, { yPercent: -100, duration: .9, ease: 'power4.inOut', onComplete: () => { gsap.set(curtain.current, { visibility: 'hidden' }); } });
+    return () => { tween.kill(); gsap.set(curtain.current, { visibility: 'hidden' }); };
+  }, [projectSlug]);
+
+  // With a mouse, primary buttons lean a little toward the pointer and spring back when it leaves.
+  useEffect(() => {
+    if (!canHover()) return;
+    let active: HTMLElement | null = null;
+    const release = () => {
+      if (active) gsap.to(active, { x: 0, y: 0, duration: .8, ease: 'elastic.out(1, .45)' });
+      active = null;
+    };
+    const move = (event: PointerEvent) => {
+      const button = event.target instanceof Element ? event.target.closest<HTMLElement>('.button-primary') : null;
+      if (button !== active) release();
+      if (!button) return;
+      active = button;
+      const box = button.getBoundingClientRect();
+      const x = event.clientX - (box.left - Number(gsap.getProperty(button, 'x')) + box.width / 2);
+      const y = event.clientY - (box.top - Number(gsap.getProperty(button, 'y')) + box.height / 2);
+      gsap.to(button, { x: x * .25, y: y * .35, duration: .4, ease: 'power3.out', overwrite: 'auto' });
+    };
+    document.addEventListener('pointermove', move);
+    document.documentElement.addEventListener('pointerleave', release);
+    return () => { document.removeEventListener('pointermove', move); document.documentElement.removeEventListener('pointerleave', release); };
+  }, []);
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
@@ -707,13 +770,19 @@ function App() {
       gsap.utils.toArray<HTMLElement>('.reveal').forEach((element, index) => {
         gsap.from(element, { y: 26, opacity: 0, duration: .8, delay: (index % 3) * .07, ease: 'power3.out', scrollTrigger: once(element, 'top 92%') });
       });
-      // Photos open like a curtain; with a mouse they also drift gently inside their frames as the page scrolls.
+      // Section dividers draw across from the left as they come into view.
+      gsap.utils.toArray<HTMLElement>('.work-section, .about-section, .career-section, .research-section, .journey-section, .contact-section, .contact-body, .career-entry').forEach((element) => {
+        gsap.fromTo(element, { '--rule': 0 }, { '--rule': 1, duration: 1.4, ease: 'power3.inOut', scrollTrigger: once(element, 'top 94%') });
+      });
+      // Photos open like a curtain, a crimson panel pulls away from them, and with a mouse they drift gently inside their frames as the page scrolls.
       const drift = canHover();
       gsap.utils.toArray<HTMLElement>('.feature-media > a, .about-photo .photo-frame').forEach((frame) => {
         const image = frame.querySelector('img');
-        gsap.fromTo(frame, { clipPath: 'inset(100% 0% 0% 0%)' }, { clipPath: 'inset(0% 0% 0% 0%)', duration: 1.3, ease: 'power4.inOut', scrollTrigger: once(frame, 'top 82%') });
+        gsap.timeline({ scrollTrigger: once(frame, 'top 82%') })
+          .fromTo(frame, { clipPath: 'inset(100% 0% 0% 0%)', '--wipe': 1 }, { clipPath: 'inset(0% 0% 0% 0%)', duration: 1, ease: 'power4.inOut' })
+          .to(frame, { '--wipe': 0, duration: 1, ease: 'power4.inOut' }, '-=.2');
         if (!image) return;
-        gsap.fromTo(image, { scale: 1.25 }, { scale: 1, duration: 1.6, ease: 'power3.out', scrollTrigger: once(frame, 'top 82%') });
+        gsap.fromTo(image, { scale: 1.3 }, { scale: 1, duration: 1.9, ease: 'power3.out', scrollTrigger: once(frame, 'top 82%') });
         if (drift) gsap.fromTo(image, { yPercent: -5 }, { yPercent: 5, ease: 'none', scrollTrigger: { trigger: frame, start: 'top bottom', end: 'bottom top', scrub: true } });
       });
       // The big project numbers slide a touch against the scroll.
@@ -730,8 +799,11 @@ function App() {
         ScrollTrigger.create({ trigger: entry, start: 'top 70%', onEnter: () => entry.classList.add('is-reached'), onLeaveBack: () => entry.classList.remove('is-reached') });
         gsap.from(entry, { x: 24, opacity: 0, duration: .8, ease: 'power3.out', scrollTrigger: once(entry, 'top 88%') });
       });
+      // The big address rises out of its own baseline.
       const email = document.querySelector('.contact-email');
-      if (email) gsap.from(email, { y: 40, opacity: 0, duration: 1, ease: 'power3.out', scrollTrigger: once(email, 'top 92%') });
+      if (email) gsap.timeline({ scrollTrigger: once(email, 'top 92%') })
+        .from('.contact-email .tech-label', { y: 16, opacity: 0, duration: .7, ease: 'power3.out' })
+        .fromTo('.contact-address', { yPercent: 60, clipPath: 'inset(0% 0% 100% 0%)' }, { yPercent: 0, clipPath: 'inset(0% 0% 0% 0%)', duration: 1.1, ease: 'power4.out', clearProps: 'clipPath' }, '-=.45');
     });
     // A keyboard user tabbing ahead of the scroll should never land on something still faded out.
     const reveal = (event: FocusEvent) => {
@@ -770,6 +842,7 @@ function App() {
           : unknownRoute ? <main className="not-found" id="main-content" tabIndex={-1} key={lang}><p className="eyebrow">{t.notFound.eyebrow}</p><h1>{t.notFound.title[0]}<em>{t.notFound.title[1]}</em></h1><a className="button button-primary" href="#projects">{t.notFound.back} <Arrow /></a></main>
           : <main id="main-content" tabIndex={-1} key={lang}><Hero /><AreasMarquee /><ProcessSection /><FeaturedWork /><ProjectExplorer query={query} setQuery={setQuery} category={category} setCategory={setCategory} /><AboutSection /><ExperienceSection /><ResearchSection /><JourneySection /><ContactSection /></main>}
         <Footer project={project} />
+        <div className="page-curtain" ref={curtain} aria-hidden="true"><span>{project ? project.title : 'Lakshy Chaudhary'}</span></div>
         {showTop && <button className="back-to-top" type="button" onClick={() => { window.scrollTo({ top: 0, behavior: scrollBehavior() }); focusMain(); }} aria-label={t.footer.topLabel}><svg aria-hidden="true" viewBox="0 0 20 20" className="icon"><path d="M10 16.5v-12m-5 5 5-5 5 5" /></svg></button>}
       </div>
     </I18nContext.Provider>

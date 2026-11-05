@@ -137,6 +137,8 @@ main > section > * { max-width: var(--max); margin-left: auto; margin-right: aut
 .char { display: inline-block; }
 .hero-portrait { position: absolute; z-index: 1; top: var(--stage-top); right: 0; width: 23cqw; margin: 0; }
 .photo-frame { position: relative; overflow: hidden; background: var(--bg-raised); }
+/* A crimson panel that can sit over a photo and pull away to reveal it; it stays hidden unless an animation sets --wipe. */
+.photo-frame::after, .feature-media > a::before { position: absolute; z-index: 1; content: ''; inset: 0; background: var(--red); transform: scaleY(var(--wipe, 0)); transform-origin: top; pointer-events: none; }
 .hero-portrait .photo-frame { aspect-ratio: 1; }
 .hero-portrait img, .about-photo img { width: 100%; height: 110%; margin-top: -5%; object-fit: cover; object-position: 55% 62%; filter: grayscale(.12) contrast(1.04); }
 .hero-portrait figcaption { position: absolute; top: 0; right: calc(100% + 16px); width: 9cqw; color: var(--subtle); font-size: 11px; text-align: right; }
@@ -400,6 +402,14 @@ main:focus, h1[tabindex='-1']:focus { outline: none; }
 .index-preview img.is-current { opacity: 1; transform: scale(1); }
 .reading-progress { position: fixed; z-index: 120; top: 0; left: 0; right: 0; height: 2px; pointer-events: none; }
 .reading-progress span { display: block; height: 100%; transform-origin: left; background: var(--red); }
+/* Dividers that draw themselves in: each line is a pseudo-element scaled by --rule, which is 1 unless an animation is running. */
+.hero-top, .hero-bottom, .hero-facts, .work-section, .about-section, .career-section, .research-section, .journey-section, .contact-section, .contact-body, .career-entry { position: relative; }
+.hero-top { border-bottom-color: transparent; }
+.hero-bottom, .hero-facts, .work-section, .about-section, .career-section, .research-section, .journey-section, .contact-section, .contact-body, .career-entry { border-top-color: transparent; }
+.hero-top::after, .hero-bottom::before, .hero-facts::before, .work-section::before, .about-section::before, .career-section::before, .research-section::before, .journey-section::before, .contact-section::before, .contact-body::before, .career-entry::before { position: absolute; content: ''; top: -1px; left: 0; right: 0; height: 1px; background: var(--line); transform: scaleX(var(--rule, 1)); transform-origin: left; pointer-events: none; }
+.hero-top::after { top: auto; bottom: -1px; }
+.page-curtain { position: fixed; z-index: 150; inset: 0; display: grid; place-items: center; padding: 0 var(--page-x); background: var(--red); pointer-events: none; visibility: hidden; }
+.page-curtain span { max-width: 14ch; color: var(--ink); font-family: var(--display); font-weight: var(--display-weight); font-size: clamp(44px, 8vw, 132px); line-height: var(--display-lh, .9); text-align: center; text-transform: uppercase; }
 .word { display: inline-block; overflow: hidden; vertical-align: top; padding: .08em .06em .08em 0; margin: -.08em -.06em -.08em 0; }
 .word-inner { display: inline-block; will-change: transform; }
 .img-missing { position: relative; display: grid !important; place-items: center; min-height: 220px; background: repeating-linear-gradient(-45deg, var(--bg-raised) 0 12px, var(--card) 12px 24px); }
