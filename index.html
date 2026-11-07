@@ -6,6 +6,8 @@
     <meta name="theme-color" content="#0b0a0a" />
     <script>
       document.documentElement.dataset.theme = 'dark';
+      document.documentElement.dataset.motion = 'full';
+      try { if (localStorage.getItem('lakshy-motion') === 'paused' || matchMedia('(prefers-reduced-motion: reduce)').matches) document.documentElement.dataset.motion = 'reduced'; } catch (e) { if (matchMedia('(prefers-reduced-motion: reduce)').matches) document.documentElement.dataset.motion = 'reduced'; }
       try { if (localStorage.getItem('lakshy-scheme') === 'light') document.documentElement.dataset.theme = 'light'; } catch (e) {}
       try { var lang = new URLSearchParams(location.search).get('lang') || localStorage.getItem('lakshy-lang'); if (/^(en|ko|hi)$/.test(lang)) document.documentElement.lang = lang; } catch (e) {}
     </script>

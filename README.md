@@ -45,3 +45,11 @@ The workflow builds with Node.js 22 and publishes `dist/`. Vite's base path is `
 ## Accessibility and motion
 
 The site keeps semantic content in the page, supports keyboard use with visible focus and a skip link, moves focus to the heading when a project opens, and restores the reading position when you go back. All animation respects `prefers-reduced-motion`. Cursor effects and scroll-linked parallax only run with a mouse (touch devices get the reveals without the drift), and the scrolling list of research areas has a pause button. Scroll reveals animate opacity only, so content stays reachable by keyboard and screen readers before it is revealed.
+
+## Interface and interaction details
+
+Selected projects appear immediately after the introduction. The project index includes a visible result count and keeps search and filter choices when the language or motion setting changes.
+
+The approach section contains an original SVG robot illustration. Scrolling through the section selects each stage; the four buttons also let visitors explore the stages using touch, a mouse, or a keyboard. This illustration describes a research idea and does not represent project footage or results.
+
+The header includes a motion control. Its preference is saved as `lakshy-motion`; the device's reduced-motion preference takes priority. Turning off motion immediately removes scroll effects and shows a static research-area list. The marquee pauses when offscreen or when the browser tab is hidden.

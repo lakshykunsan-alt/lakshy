@@ -76,6 +76,7 @@ const en = {
     facts: [['Currently', 'PhD, Artificial Intelligence'], ['Lab', 'AI Convergence Lab, Prof. Han-Gue Jo'], ['Focus', 'Brain imaging & Neuro AI'], ['Supported by', 'Global Korea Scholarship']] as [string, string][],
     year: (year: number) => `year ${year} of the PhD · expected 2028`,
   },
+  motion: { pause: 'Pause animations', play: 'Play animations', system: 'Reduced motion follows your device setting' },
   marquee: { pause: 'Pause the moving list', play: 'Play the moving list' },
   process: {
     eyebrow: 'How I think about it', title: ['From seeing ', 'to doing.'] as Heading,
@@ -187,6 +188,7 @@ const ko: Dictionary = {
     facts: [['현재', '인공지능 박사과정'], ['연구실', 'AI Convergence Lab, Han-Gue Jo 교수님'], ['관심 분야', '뇌 영상 & 뉴로 AI'], ['지원', '한국정부초청장학금(GKS)']],
     year: (year: number) => `박사과정 ${year}년차 · 2028년 졸업 예정`,
   },
+  motion: { pause: '애니메이션 일시 정지', play: '애니메이션 재생', system: '기기의 동작 줄이기 설정을 따릅니다' },
   marquee: { pause: '움직이는 목록 멈추기', play: '움직이는 목록 재생하기' },
   process: {
     eyebrow: '제가 생각하는 방식', title: ['보는 것에서 ', '행동으로.'],
@@ -341,6 +343,7 @@ const hi: Dictionary = {
     facts: [['अभी', 'PhD, आर्टिफ़िशियल इंटेलिजेंस'], ['लैब', 'AI Convergence Lab, प्रो. Han-Gue Jo'], ['फ़ोकस', 'ब्रेन इमेजिंग और न्यूरो AI'], ['छात्रवृत्ति', 'ग्लोबल कोरिया स्कॉलरशिप (GKS)']],
     year: (year: number) => `PhD का वर्ष ${year} · 2028 तक पूरी होने की उम्मीद`,
   },
+  motion: { pause: 'एनिमेशन रोकें', play: 'एनिमेशन चलाएं', system: 'आपके डिवाइस की कम गति सेटिंग लागू है' },
   marquee: { pause: 'चलती सूची रोकें', play: 'चलती सूची चलाएँ' },
   process: {
     eyebrow: 'मेरा नज़रिया', title: ['देखने से ', 'करने तक।'],

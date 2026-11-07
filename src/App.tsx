@@ -2,6 +2,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState, type MouseEvent 
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { categories, projects, type Project } from './data';
+import { ResearchScene } from './ResearchScene';
 import { I18nContext, dictionaries, initialLang, languages, loadFonts, rememberLang, useI18n, type Lang } from './i18n';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -23,7 +24,7 @@ const navItems = [
 /* A new key: the old one was written on every visit, so it cannot tell a real choice from the old default. */
 const THEME_KEY = 'lakshy-scheme';
 
-const prefersReducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const prefersReducedMotion = () => document.documentElement.dataset.motion === 'reduced' || window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 /* Cursor-following touches and scroll-linked drift only make sense with a mouse, and only when motion is welcome. */
 const canHover = () => window.matchMedia('(hover: hover) and (pointer: fine)').matches && !prefersReducedMotion();
 const isProjectRoute = (hash: string) => /^#\/projects\//.test(hash);
@@ -123,6 +124,14 @@ function AreasMarquee() {
   const track = useRef<HTMLDivElement>(null);
   const items = [...t.researchAreas, ...t.researchAreas, ...t.researchAreas, ...t.researchAreas];
 
+  useEffect(() => {
+    const wrap = track.current?.closest('.marquee-wrap');
+    if (!wrap) return;
+    const observer = new IntersectionObserver(([entry]) => wrap.classList.toggle('is-offscreen', !entry.isIntersecting));
+    observer.observe(wrap);
+    return () => observer.disconnect();
+  }, []);
+
   // With a mouse, a quick scroll pushes the strip faster for a moment before it eases back to its slow pace.
   useEffect(() => {
     const element = track.current;
@@ -161,7 +170,7 @@ function LanguageSwitch() {
   );
 }
 
-function SiteHeader({ theme, onThemeToggle, activeSection, scrolled, route }: { theme: Theme; onThemeToggle: () => void; activeSection: string; scrolled: boolean; route: string }) {
+function SiteHeader({ theme, onThemeToggle, activeSection, scrolled, route, motionPaused, onMotionToggle, systemReduced }: { theme: Theme; onThemeToggle: () => void; activeSection: string; scrolled: boolean; route: string; motionPaused: boolean; onMotionToggle: () => void; systemReduced: boolean }) {
   const { t } = useI18n();
   const [menuOpen, setMenuOpen] = useState(false);
   const header = useRef<HTMLElement>(null);
@@ -195,8 +204,9 @@ function SiteHeader({ theme, onThemeToggle, activeSection, scrolled, route }: { 
   }, [menuOpen]);
 
   const themeLabel = theme === 'dark' ? t.nav.toLight : t.nav.toDark;
+  const motionLabel = systemReduced ? t.motion.system : motionPaused ? t.motion.play : t.motion.pause;
   return (
-    <header className={`site-header${scrolled ? ' is-scrolled' : ''}`} ref={header}>
+    <header className={`site-header${scrolled ? ' is-scrolled' : ''}${menuOpen ? ' menu-is-open' : ''}`} ref={header}>
       <div className="header-inner">
         <Logo />
         <nav id="primary-navigation" className={menuOpen ? 'primary-nav open' : 'primary-nav'} aria-label={t.nav.label}>
@@ -205,6 +215,7 @@ function SiteHeader({ theme, onThemeToggle, activeSection, scrolled, route }: { 
         </nav>
         <div className="header-actions">
           <LanguageSwitch />
+          <button type="button" className="motion-toggle" onClick={onMotionToggle} disabled={systemReduced} aria-pressed={motionPaused} aria-label={motionLabel} title={motionLabel}><svg aria-hidden="true" viewBox="0 0 20 20">{motionPaused ? <path d="m7 4 9 6-9 6Z" /> : <path d="M7 4v12M13 4v12" />}</svg></button>
           <button type="button" className="theme-toggle" onClick={onThemeToggle} aria-label={themeLabel} title={themeLabel}><svg className="theme-icon-svg" viewBox="0 0 24 24" aria-hidden="true">{theme === 'dark' ? <><circle cx="12" cy="12" r="3.5" /><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42" /></> : <path d="M20.4 15.2A8.7 8.7 0 0 1 8.8 3.6 8.8 8.8 0 1 0 20.4 15.2Z" />}</svg></button>
           <button className="menu-toggle" ref={menuButton} type="button" aria-expanded={menuOpen} aria-controls="primary-navigation" onClick={() => setMenuOpen((open) => !open)}>{menuOpen ? t.nav.close : t.nav.menu}</button>
         </div>
@@ -227,13 +238,13 @@ function Hero() {
         // The rules draw across first, the red name rises, a crimson panel opens over the portrait and pulls away, then the surname and the details follow.
         const header = document.querySelector('.site-header');
         gsap.timeline({ defaults: { ease: 'power3.out' }, onComplete: () => { introPlayed = true; } })
-          .fromTo('.hero-top', { '--rule': 0 }, { '--rule': 1, duration: 1.2, ease: 'power3.inOut' })
+          .fromTo('.hero-top', { '--rule': 0 }, { '--rule': 1, duration: .75, ease: 'power3.inOut' })
           .from(header, { yPercent: -100, duration: .9 }, '<.1')
-          .from('.hero-back .char', { yPercent: 115, rotate: 6, transformOrigin: '0% 100%', duration: 1.15, stagger: .06, ease: 'power4.out' }, '<.15')
-          .fromTo('.hero-portrait .photo-frame', { clipPath: 'inset(100% 0% 0% 0%)', '--wipe': 1 }, { clipPath: 'inset(0% 0% 0% 0%)', duration: .9, ease: 'power4.inOut' }, '-=.9')
-          .to('.hero-portrait .photo-frame', { '--wipe': 0, duration: .9, ease: 'power4.inOut' }, '-=.15')
-          .from('.hero-portrait img', { scale: 1.35, duration: 1.6, ease: 'power3.out' }, '<')
-          .from('.hero-front .char', { yPercent: 115, rotate: 6, transformOrigin: '0% 100%', duration: .9, stagger: .035, ease: 'power4.out' }, '-=1.5')
+          .from('.hero-back .char', { yPercent: 115, rotate: 6, transformOrigin: '0% 100%', duration: .85, stagger: .035, ease: 'power4.out' }, '<.15')
+          .fromTo('.hero-portrait .photo-frame', { clipPath: 'inset(100% 0% 0% 0%)', '--wipe': 1 }, { clipPath: 'inset(0% 0% 0% 0%)', duration: .65, ease: 'power4.inOut' }, '-=.7')
+          .to('.hero-portrait .photo-frame', { '--wipe': 0, duration: .55, ease: 'power4.inOut' }, '-=.2')
+          .from('.hero-portrait img', { scale: 1.35, duration: 1.1, ease: 'power3.out' }, '<')
+          .from('.hero-front .char', { yPercent: 115, rotate: 6, transformOrigin: '0% 100%', duration: .7, stagger: .025, ease: 'power4.out' }, '-=1')
           .fromTo('.hero-bottom, .hero-facts', { '--rule': 0 }, { '--rule': 1, duration: 1.1, stagger: .12, ease: 'power3.inOut' }, '-=1')
           .from('.hero-stagger', { y: 20, opacity: 0, duration: .75, stagger: .1 }, '-=.9')
           .from('.hero-facts > div', { y: 14, opacity: 0, duration: .6, stagger: .07 }, '-=.5');
@@ -259,6 +270,7 @@ function Hero() {
         <div className="hero-stagger"><GunsanTime /></div>
       </div>
       <div className="hero-stage">
+        <div className="hero-coordinate" aria-hidden="true"><svg viewBox="0 0 120 120" fill="none"><circle cx="60" cy="60" r="44" /><ellipse cx="60" cy="60" rx="44" ry="16" transform="rotate(-35 60 60)" /><ellipse cx="60" cy="60" rx="16" ry="44" transform="rotate(-35 60 60)" /><path d="M0 60h120M60 0v120" /><circle className="coordinate-core" cx="60" cy="60" r="4" /><circle className="coordinate-node" cx="96" cy="34" r="4" /></svg><span>PERCEPTION / REASONING / ACTION</span></div>
         <h1 id="hero-title" className="hero-name">
           <span className="sr-only">Lakshy Chaudhary</span>
           <span className="hero-back" aria-hidden="true"><Letters text="Lakshy" /></span>
@@ -279,23 +291,44 @@ function Hero() {
       <dl className="hero-facts">
         {t.hero.facts.map(([term, value], index) => <div key={term}><dt>{term}</dt><dd>{value}{index === 0 && <small>{t.hero.year(phdYear())}</small>}</dd></div>)}
       </dl>
+      <a className="hero-scroll" href="#projects"><span>{t.work.eyebrow}</span><span className="scroll-line" aria-hidden="true" /><span className="scroll-arrow" aria-hidden="true">↓</span></a>
     </section>
   );
 }
 
 function ProcessSection() {
   const { t } = useI18n();
+  const [phase, setPhase] = useState(0);
+  const section = useRef<HTMLElement>(null);
+  useEffect(() => {
+    if (!section.current || prefersReducedMotion()) return;
+    const trigger = ScrollTrigger.create({
+      trigger: section.current,
+      start: 'top 55%',
+      end: 'bottom 75%',
+      onUpdate: (self) => {
+        // Manual choices stay put until the visitor scrolls again.
+        setPhase(Math.min(3, Math.floor(self.progress * 4)));
+      },
+    });
+    return () => trigger.kill();
+  }, []);
   return (
-    <section className="process-section section-pad" id="approach">
-      <div className="section-heading split-heading"><div><p className="eyebrow">{t.process.eyebrow}</p><h2>{t.process.title[0]}<em>{t.process.title[1]}</em></h2></div><p className="section-lede">{t.process.lede}</p></div>
-      <ol className="process-steps">
-        {t.process.steps.map((step, index) => <li className="process-step reveal" key={step.title}>
-          <span className="step-number">{String(index + 1).padStart(2, '0')}</span>
-          <p className="step-theme">{step.theme}</p>
-          <h3>{step.title}</h3>
-          <p>{step.detail}</p>
-        </li>)}
-      </ol>
+    <section className="process-section section-pad" id="approach" ref={section} aria-labelledby="approach-title">
+      <div className="section-heading split-heading"><div><p className="eyebrow">{t.process.eyebrow}</p><h2 id="approach-title">{t.process.title[0]}<em>{t.process.title[1]}</em></h2></div><p className="section-lede">{t.process.lede}</p></div>
+      <div className="process-lab">
+        <ResearchScene phase={phase} />
+        <ol className="process-steps">
+          {t.process.steps.map((step, index) => <li className={`process-step${phase === index ? ' is-active' : ''}`} key={step.title}>
+            <button className="process-control" type="button" aria-pressed={phase === index} aria-controls="research-scene" onClick={() => setPhase(index)}>
+              <span className="step-number">{String(index + 1).padStart(2, '0')}<span aria-hidden="true">↗</span></span>
+              <span className="step-theme">{step.theme}</span>
+              <span className="step-title">{step.title}</span>
+              <span className="step-detail">{step.detail}</span>
+            </button>
+          </li>)}
+        </ol>
+      </div>
       <p className="illustration-note">{t.process.note}</p>
     </section>
   );
@@ -383,7 +416,7 @@ function ProjectExplorer({ query, setQuery, category, setCategory }: ExplorerSta
     <section className="explorer-section section-pad" aria-labelledby="explorer-title">
       <div className="explorer-top"><div><p className="eyebrow">{t.explorer.eyebrow}</p><h2 id="explorer-title">{t.explorer.title}<span className="period">{t.explorer.period}</span></h2></div><p className="section-lede">{t.explorer.lede}</p></div>
       <div className="project-controls"><label className="search-box"><svg aria-hidden="true" viewBox="0 0 20 20"><circle cx="8.5" cy="8.5" r="5.5" /><path d="m13 13 4 4" /></svg><span className="sr-only">{t.explorer.search}</span><input type="search" placeholder={t.explorer.placeholder} value={query} onChange={(event) => setQuery(event.target.value)} /></label><div className="filter-list" role="group" aria-label={t.explorer.filter}>{categories.map((item) => <button type="button" key={item} className={category === item ? 'filter-chip active' : 'filter-chip'} aria-pressed={category === item} onClick={() => setCategory(item)}>{item === 'All' ? t.explorer.all : t.categories[item] ?? item}</button>)}</div></div>
-      <p className="sr-only" aria-live="polite" aria-atomic="true">{t.explorer.found(filtered.length)}</p>
+      <p className="explorer-result" role="status" aria-live="polite" aria-atomic="true"><span className="live-dot" aria-hidden="true" />{t.explorer.found(filtered.length)}</p>
       {showPreview && <div className={`index-preview${hovered ? ' is-visible' : ''}`} ref={preview} aria-hidden="true">{items.map((project) => <img key={project.slug} src={project.image} alt="" loading="lazy" className={hovered?.slug === project.slug ? 'is-current' : undefined} />)}</div>}
       {filtered.length ? <ul className="index-list" onPointerMove={showPreview ? trackPointer : undefined} onPointerLeave={() => setHovered(null)}>{filtered.map((project) => <li key={project.slug}><a href={`#/projects/${project.slug}`} onPointerEnter={showPreview ? (event) => { if (!hovered) { follow.current?.x(event.clientX, event.clientX); follow.current?.y(event.clientY, event.clientY); } setHovered(project); } : undefined}><span className="index-number">{project.number}</span><span className="index-title">{project.title}</span><span className="index-category">{project.category}</span><span className="index-summary">{project.summary}</span><Arrow diagonal /></a></li>)}</ul> : <div className="empty-state"><p>{t.explorer.empty}</p><button type="button" className="text-link" onClick={() => { setQuery(''); setCategory('All'); }}>{t.explorer.clear} <Arrow /></button></div>}
       <p className="ongoing-note">{t.explorer.ongoing}</p>
@@ -471,7 +504,7 @@ function JourneySection() {
     <section className="journey-section section-pad" id="journey">
       <div className="journey-inner">
         <div className="journey-intro"><p className="eyebrow">{t.journeySection.eyebrow}</p><h2>{t.journeySection.title[0]}<em>{t.journeySection.title[1]}</em></h2><p className="section-lede">{t.journeySection.lede}</p></div>
-        <ol className="timeline"><span className="timeline-fill" aria-hidden="true" />{t.journey.map((entry, index) => <li className={`timeline-entry${index === t.journey.length - 1 ? ' is-current' : ''}`} key={index}><span className="timeline-dot" aria-hidden="true" />{entry.date && <div className="timeline-date">{entry.date}</div>}<h3>{entry.title}</h3><p>{entry.detail}</p></li>)}</ol>
+        <ol className="timeline"><li className="timeline-fill" role="presentation" aria-hidden="true" />{t.journey.map((entry, index) => <li className={`timeline-entry${index === t.journey.length - 1 ? ' is-current' : ''}`} key={index}><span className="timeline-dot" aria-hidden="true" />{entry.date && <div className="timeline-date">{entry.date}</div>}<h3>{entry.title}</h3><p>{entry.detail}</p></li>)}</ol>
       </div>
     </section>
   );
@@ -540,7 +573,7 @@ function Footer({ project }: { project?: Project }) {
   );
 }
 
-function ProjectDetail({ project, onBack }: { project: Project; onBack: (event: ReactMouseEvent) => void }) {
+function ProjectDetail({ project, onBack, motionPaused }: { project: Project; onBack: (event: ReactMouseEvent) => void; motionPaused: boolean }) {
   const { t } = useI18n();
   const items = useProjects();
   const page = useRef<HTMLElement>(null);
@@ -574,7 +607,7 @@ function ProjectDetail({ project, onBack }: { project: Project; onBack: (event: 
       });
     }, page.current);
     return () => context.revert();
-  }, [project.slug]);
+  }, [project.slug, motionPaused]);
 
   return (
     <main className="detail-page" id="main-content" ref={page} tabIndex={-1}>
@@ -603,6 +636,35 @@ function App() {
   const [theme, setTheme] = useState<Theme>(() => {
     try { return localStorage.getItem(THEME_KEY) === 'light' ? 'light' : 'dark'; } catch { return 'dark'; }
   });
+  useEffect(() => {
+    const updateVisibility = () => { document.documentElement.dataset.visibility = document.hidden ? 'hidden' : 'visible'; };
+    updateVisibility();
+    document.addEventListener('visibilitychange', updateVisibility);
+    return () => document.removeEventListener('visibilitychange', updateVisibility);
+  }, []);
+  const [systemReduced, setSystemReduced] = useState(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const [motionPaused, setMotionPaused] = useState(prefersReducedMotion);
+  useEffect(() => {
+    const media = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const update = () => {
+      let saved = false;
+      try { saved = localStorage.getItem('lakshy-motion') === 'paused'; } catch { /* Session preferences still work. */ }
+      const reduced = media.matches || saved;
+      setSystemReduced(media.matches);
+      document.documentElement.dataset.motion = reduced ? 'reduced' : 'full';
+      setMotionPaused(reduced);
+    };
+    media.addEventListener('change', update);
+    return () => media.removeEventListener('change', update);
+  }, []);
+  const toggleMotion = () => {
+    // The system preference always wins. The button explains it through its label.
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const next = !motionPaused;
+    document.documentElement.dataset.motion = next ? 'reduced' : 'full';
+    try { localStorage.setItem('lakshy-motion', next ? 'paused' : 'full'); } catch { /* Session preferences still work. */ }
+    setMotionPaused(next);
+  };
   const [lang, setLang] = useState<Lang>(initialLang);
   const t = dictionaries[lang];
   const i18n = useMemo(() => ({ lang, t, setLang }), [lang, t]);
@@ -677,7 +739,7 @@ function App() {
     if (!curtain.current || prefersReducedMotion()) return;
     const tween = gsap.fromTo(curtain.current, { yPercent: 0, visibility: 'visible' }, { yPercent: -100, duration: .9, ease: 'power4.inOut', onComplete: () => { gsap.set(curtain.current, { visibility: 'hidden' }); } });
     return () => { tween.kill(); gsap.set(curtain.current, { visibility: 'hidden' }); };
-  }, [projectSlug]);
+  }, [projectSlug, motionPaused]);
 
   // With a mouse, primary buttons lean a little toward the pointer and spring back when it leaves.
   useEffect(() => {
@@ -699,8 +761,8 @@ function App() {
     };
     document.addEventListener('pointermove', move);
     document.documentElement.addEventListener('pointerleave', release);
-    return () => { document.removeEventListener('pointermove', move); document.documentElement.removeEventListener('pointerleave', release); };
-  }, []);
+    return () => { document.removeEventListener('pointermove', move); document.documentElement.removeEventListener('pointerleave', release); release(); };
+  }, [motionPaused]);
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
@@ -749,9 +811,11 @@ function App() {
       setActiveSection(current === 'contact' ? '' : current);
     };
     update();
-    window.addEventListener('scroll', update, { passive: true });
-    window.addEventListener('resize', update, { passive: true });
-    return () => { window.removeEventListener('scroll', update); window.removeEventListener('resize', update); };
+    let frame = 0;
+    const schedule = () => { if (!frame) frame = requestAnimationFrame(() => { frame = 0; update(); }); };
+    window.addEventListener('scroll', schedule, { passive: true });
+    window.addEventListener('resize', schedule, { passive: true });
+    return () => { cancelAnimationFrame(frame); window.removeEventListener('scroll', schedule); window.removeEventListener('resize', schedule); };
   }, [projectSlug, lang]);
 
   // Animations split headings into words, so the page is remounted (keyed by language) whenever the language changes.
@@ -816,7 +880,7 @@ function App() {
     document.fonts?.ready.then(refresh);
     window.addEventListener('load', refresh);
     return () => { document.removeEventListener('focusin', reveal); window.removeEventListener('load', refresh); context.revert(); };
-  }, [projectSlug, lang]);
+  }, [projectSlug, lang, motionPaused]);
 
   const skipToContent = (event: ReactMouseEvent) => {
     event.preventDefault();
@@ -837,10 +901,10 @@ function App() {
       <div className="app-shell">
         <div className="reading-progress" aria-hidden="true"><span ref={progress} /></div>
         <a className="skip-link" href="#main-content" onClick={skipToContent}>{t.nav.skip}</a>
-        <SiteHeader theme={theme} scrolled={scrolled} activeSection={activeSection} route={route} onThemeToggle={toggleTheme} />
-        {project ? <ProjectDetail key={project.slug} project={project} onBack={backToProjects} />
+        <SiteHeader theme={theme} scrolled={scrolled} activeSection={activeSection} route={route} onThemeToggle={toggleTheme} motionPaused={motionPaused} onMotionToggle={toggleMotion} systemReduced={systemReduced} />
+        {project ? <ProjectDetail key={project.slug} project={project} onBack={backToProjects} motionPaused={motionPaused} />
           : unknownRoute ? <main className="not-found" id="main-content" tabIndex={-1} key={lang}><p className="eyebrow">{t.notFound.eyebrow}</p><h1>{t.notFound.title[0]}<em>{t.notFound.title[1]}</em></h1><a className="button button-primary" href="#projects">{t.notFound.back} <Arrow /></a></main>
-          : <main id="main-content" tabIndex={-1} key={lang}><Hero /><AreasMarquee /><ProcessSection /><FeaturedWork /><ProjectExplorer query={query} setQuery={setQuery} category={category} setCategory={setCategory} /><AboutSection /><ExperienceSection /><ResearchSection /><JourneySection /><ContactSection /></main>}
+          : <main id="main-content" tabIndex={-1} key={`${lang}-${motionPaused}`}><Hero /><AreasMarquee /><FeaturedWork /><ProjectExplorer query={query} setQuery={setQuery} category={category} setCategory={setCategory} /><ProcessSection /><AboutSection /><ExperienceSection /><ResearchSection /><JourneySection /><ContactSection /></main>}
         <Footer project={project} />
         <div className="page-curtain" ref={curtain} aria-hidden="true"><span>{project ? project.title : 'Lakshy Chaudhary'}</span></div>
         {showTop && <button className="back-to-top" type="button" onClick={() => { window.scrollTo({ top: 0, behavior: scrollBehavior() }); focusMain(); }} aria-label={t.footer.topLabel}><svg aria-hidden="true" viewBox="0 0 20 20" className="icon"><path d="M10 16.5v-12m-5 5 5-5 5 5" /></svg></button>}
